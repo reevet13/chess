@@ -1,5 +1,7 @@
 package chess;
 
+import chess.MoveCalculators.*;
+
 import java.util.Collection;
 
 /**
@@ -51,14 +53,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        return switch (type) {
+            case BISHOP -> BishopMoveCalculator.getmoves(board, myPosition);
 
-        /*return switch (type) {
-            case KING -> KingMoveCalculator.getmoves(board, myPosition);
+        };
+            /*case KING -> KingMoveCalculator.getmoves(board, myPosition);
             case QUEEN -> QueenMoveCalculator.getmoves(board, myPosition);
             case BISHOP -> BishopMoveCalculator.getmoves(board, myPosition);
             case KNIGHT -> KnightMoveCalculator.getmoves(board, myPosition);
             case ROOK -> RookMoveCalculator.getmoves(board, myPosition);
             case PAWN -> PawnMoveCalculator.getmoves(board, myPosition);
-        };*/
+        */
     }
 }
