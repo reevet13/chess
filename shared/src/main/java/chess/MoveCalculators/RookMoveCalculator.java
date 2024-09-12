@@ -17,16 +17,16 @@ public class RookMoveCalculator {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + i, startPosition.getColumn());
             rookMoves.add(new ChessMove(startPosition, endPosition, null));
         }
-        //down
-        boardLimit = 8 - (9 - startPosition.getRow());
-        for (int i = 1; i <= boardLimit; i++) {
-            ChessPosition endPosition = new ChessPosition(startPosition.getRow() - i, startPosition.getColumn());
-            rookMoves.add(new ChessMove(startPosition, endPosition, null));
-        }
         //right
         boardLimit = 8 - (startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + i);
+            rookMoves.add(new ChessMove(startPosition, endPosition, null));
+        }
+        //down
+        boardLimit = 8 - (9 - startPosition.getRow());
+        for (int i = 1; i <= boardLimit; i++) {
+            ChessPosition endPosition = new ChessPosition(startPosition.getRow() - i, startPosition.getColumn());
             rookMoves.add(new ChessMove(startPosition, endPosition, null));
         }
         //left
