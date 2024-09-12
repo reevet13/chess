@@ -1,6 +1,12 @@
 package chess.MoveCalculators;
 
-public class BishopMoveCalculator {
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 
-    public static getmoves()
-}
+import java.util.HashSet;
+
+//public class BishopMoveCalculator implements MoveCaluculator {
+
+//}

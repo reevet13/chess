@@ -5,7 +5,10 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-public class MoveCalculator {
+import java.util.HashSet;
+
+public interface MoveCalculator {
+
 }
 
 /* 1. Checks for end of board

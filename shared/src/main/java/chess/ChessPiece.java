@@ -1,7 +1,8 @@
 package chess;
 
-import chess.MoveCalculators.*;
+//import chess.MoveCalculators.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -22,6 +23,7 @@ public class ChessPiece {
 
     /**
      * The various different chess piece options
+     * I can call these by saying PieceType.King etc.
      */
     public enum PieceType {
         KING,
@@ -53,16 +55,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return switch (type) {
-            case BISHOP -> BishopMoveCalculator.getmoves(board, myPosition);
+        return new ArrayList<>();
+        //return switch (type) {
+            //case BISHOP -> BishopMoveCalculator.typeMoves(board, myPosition);
 
         };
-            /*case KING -> KingMoveCalculator.getmoves(board, myPosition);
-            case QUEEN -> QueenMoveCalculator.getmoves(board, myPosition);
-            case BISHOP -> BishopMoveCalculator.getmoves(board, myPosition);
-            case KNIGHT -> KnightMoveCalculator.getmoves(board, myPosition);
-            case ROOK -> RookMoveCalculator.getmoves(board, myPosition);
-            case PAWN -> PawnMoveCalculator.getmoves(board, myPosition);
+            /*case KING -> KingMoveCalculator.typeMoves(board, myPosition);
+            case QUEEN -> QueenMoveCalculator.typeMoves(board, myPosition);
+            case BISHOP -> BishopMoveCalculator.typeMoves(board, myPosition);
+            case KNIGHT -> KnightMoveCalculator.typeMoves(board, myPosition);
+            case ROOK -> RookMoveCalculator.typeMoves(board, myPosition);
+            case PAWN -> PawnMoveCalculator.typeMoves(board, myPosition);
         */
-    }
 }
