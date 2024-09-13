@@ -1,9 +1,6 @@
 package chess.MoveCalculators;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,25 +12,62 @@ public class RookMoveCalculator {
         int boardLimit = 8 - startPosition.getRow();
         for (int i = 1; i <= boardLimit; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + i, startPosition.getColumn());
-            rookMoves.add(new ChessMove(startPosition, endPosition, null));
+            //if empty, add
+            if (board.getPiece(endPosition) == null){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //right
         boardLimit = 8 - (startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + i);
-            rookMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //down
         boardLimit = 8 - (9 - startPosition.getRow());
         for (int i = 1; i <= boardLimit; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() - i, startPosition.getColumn());
-            rookMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //left
         boardLimit = 8 - (9 - startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() - i);
-            rookMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                rookMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
 
         return rookMoves;
