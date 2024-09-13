@@ -13,7 +13,7 @@ public class KnightMoveCalculator {
         Collection<ChessMove> knightMoves = new ArrayList<ChessMove>();
         //up up right
         ChessPosition endPosition = new ChessPosition(startPosition.getRow() + 2, startPosition.getColumn() + 1);
-        if (endPosition.getRow() <= 8 && endPosition.getColumn() <= 8) {
+        if (startPosition.getRow() <= 6 && startPosition.getColumn() <= 7) {
             knightMoves.add(new ChessMove(startPosition, endPosition, null));
         }
         //up right right
