@@ -18,25 +18,61 @@ public class BishopMoveCalculator {
         int boardLimit = 8 - Math.max(startPosition.getRow(), startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             ChessPosition endPosition = new ChessPosition (startPosition.getRow() + i, startPosition.getColumn() + i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         // down and to the right ( - row + col)
         boardLimit = 8 - Math.max(9 - startPosition.getRow(), startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             ChessPosition endPosition = new ChessPosition (startPosition.getRow() - i, startPosition.getColumn() + i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //down and to the left
         boardLimit = 8 - Math.max(9 - startPosition.getRow(), 9 - startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             ChessPosition endPosition = new ChessPosition (startPosition.getRow() - i, startPosition.getColumn() - i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //up and to the left
-        boardLimit = 8 - Math.max(startPosition.getRow(), startPosition.getColumn());
+        boardLimit = 8 - Math.max(startPosition.getRow(), 9 - startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             ChessPosition endPosition = new ChessPosition (startPosition.getRow() + i, startPosition.getColumn() - i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                //if they're the same team, stop
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+                //if they're not the same team, you can go there and then stop
+            } else if (board.getPiece(endPosition).getTeamColor() != board.getPiece(startPosition).getTeamColor()){
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
 
         return bishopMoves;
