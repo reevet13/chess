@@ -11,8 +11,8 @@ import java.util.Collection;
 public class KingMoveCalculator {
     public static Collection<ChessMove> getKingMoves (ChessBoard board, ChessPosition startPosition){
         Collection<ChessMove> kingMoves = new ArrayList<ChessMove>();
-        //up
         ChessPosition endPosition;
+        //up
         if (startPosition.getRow() <= 7){
             endPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn());
             kingMoves.add(new ChessMove(startPosition, endPosition, null));
