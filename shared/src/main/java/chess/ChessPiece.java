@@ -59,7 +59,9 @@ public class ChessPiece {
         //return switch (type) {
         //return BishopMoveCalculator.getBishopMoves(board, myPosition);
         //return RookMoveCalculator.getRookMoves(board, myPosition);
-        return QueenMoveCalculator.getQueenMoves(board, myPosition);
+        //return QueenMoveCalculator.getQueenMoves(board, myPosition);
+        return KingMoveCalculator.getKingMoves(board, myPosition);
+        //return KnightMoveCalculator.getKnightMoves(board, myPosition);
            /* case KING -> KingMoveCalculator.typeMoves(board, myPosition);
             case QUEEN -> QueenMoveCalculator.typeMoves(board, myPosition);
             case BISHOP -> BishopMoveCalculator.typeMoves(board, myPosition);
