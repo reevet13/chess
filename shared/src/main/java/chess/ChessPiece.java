@@ -69,6 +69,18 @@ public class ChessPiece {
     }
 
     @Override
+    public String toString() {
+        return switch (type) {
+            case KING -> getTeamColor() == ChessGame.TeamColor.WHITE ? "K" : "k";
+            case QUEEN -> getTeamColor() == ChessGame.TeamColor.WHITE ? "Q" : "q";
+            case BISHOP -> getTeamColor() == ChessGame.TeamColor.WHITE ? "B" : "b";
+            case KNIGHT -> getTeamColor() == ChessGame.TeamColor.WHITE ? "N" : "n";
+            case ROOK -> getTeamColor() == ChessGame.TeamColor.WHITE ? "R" : "r";
+            case PAWN -> getTeamColor() == ChessGame.TeamColor.WHITE ? "P" : "p";
+        };
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
