@@ -4,7 +4,6 @@ import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class BishopMoveCalculator {
 
@@ -14,27 +13,55 @@ public class BishopMoveCalculator {
 
         //up and right
         int boardLimit = 8 - Math.max(startPosition.getRow(), startPosition.getColumn());
-        for (int i = 1; i <= boardLimit; i++){
+        for (int i = 1; i <= boardLimit; i++) {
             endPosition = new ChessPosition(startPosition.getRow() + i, startPosition.getColumn() + i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null) {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+            } else {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //down and right
         boardLimit = 8 - Math.max(9 - startPosition.getRow(), startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             endPosition = new ChessPosition(startPosition.getRow() - i, startPosition.getColumn() + i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null) {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+            } else {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //down and left
         boardLimit = 8 - Math.max(9 - startPosition.getRow(), 9 - startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             endPosition = new ChessPosition(startPosition.getRow() - i, startPosition.getColumn() - i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null) {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+            } else {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         //up and left
         boardLimit = 8 - Math.max(startPosition.getRow(), 9 - startPosition.getColumn());
         for (int i = 1; i <= boardLimit; i++){
             endPosition = new ChessPosition(startPosition.getRow() + i, startPosition.getColumn() - i);
-            bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            if (board.getPiece(endPosition) == null) {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+            } else if (board.getPiece(endPosition).getTeamColor() == board.getPiece(startPosition).getTeamColor()){
+                break;
+            } else {
+                bishopMoves.add(new ChessMove(startPosition, endPosition, null));
+                break;
+            }
         }
         return bishopMoves;
     }
