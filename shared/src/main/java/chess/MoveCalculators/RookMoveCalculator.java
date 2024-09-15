@@ -8,6 +8,7 @@ import java.util.Collection;
 public class RookMoveCalculator {
     public static Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition startPosition) {
         Collection<ChessMove> rookMoves = new ArrayList<ChessMove>();
+
         //up
         int boardLimit = 8 - startPosition.getRow();
         for (int i = 1; i <= boardLimit; i++) {
