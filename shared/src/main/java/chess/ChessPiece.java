@@ -54,7 +54,8 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return BishopMoveCalculator.getBishopMoves(board, myPosition);
+        //return BishopMoveCalculator.getBishopMoves(board, myPosition);
+        return RookMoveCalculator.getRookMoves(board, myPosition);
     }
 
 
