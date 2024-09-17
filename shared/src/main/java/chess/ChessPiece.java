@@ -58,7 +58,8 @@ public class ChessPiece {
         //return RookMoveCalculator.getRookMoves(board, myPosition);
         //return QueenMoveCalculator.getQueenMoves(board, myPosition);
         //return KingMoveCalculator.getKingMoves(board, myPosition);
-        return KnightMoveCalculator.getKnightMoves(board, myPosition);
+        //return KnightMoveCalculator.getKnightMoves(board, myPosition);
+        return PawnMoveCalculator.getPawnMoves(board, myPosition);
     }
 
 
