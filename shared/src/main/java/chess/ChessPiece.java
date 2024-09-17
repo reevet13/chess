@@ -55,6 +55,7 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         //return BishopMoveCalculator.getBishopMoves(board, myPosition);
         //return RookMoveCalculator.getRookMoves(board, myPosition);
-        return QueenMoveCalculator.getQueenMoves(board, myPosition);
+        //return QueenMoveCalculator.getQueenMoves(board, myPosition);
+        return KingMoveCalculator.getKingMoves(board, myPosition);
     }
 }
