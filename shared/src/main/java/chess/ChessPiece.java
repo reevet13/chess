@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
+
 import chess.MoveCalculators.*;
 
 /**
@@ -53,10 +55,32 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        //return BishopMoveCalculator.getBishopMoves(board, myPosition);
-        //return RookMoveCalculator.getRookMoves(board, myPosition);
-        //return QueenMoveCalculator.getQueenMoves(board, myPosition);
-        //return KingMoveCalculator.getKingMoves(board, myPosition);
-        return KnightMoveCalculator.getKnightMoves(board, myPosition);
+        return switch (type){
+            case BISHOP ->  BishopMoveCalculator.getBishopMoves(board, myPosition);
+            case ROOK ->  RookMoveCalculator.getRookMoves(board, myPosition);
+            case QUEEN ->  QueenMoveCalculator.getQueenMoves(board, myPosition);
+            case KING ->  KingMoveCalculator.getKingMoves(board, myPosition);
+            case KNIGHT ->  KnightMoveCalculator.getKnightMoves(board, myPosition);
+            case PAWN ->  PawnMoveCalculator.getPawnMoves(board, myPosition);
+        };
+
+    }
+
+    @Override
+    public String toString() {
+        return String.format("color: %s, type: %s", pieceColor, type);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
