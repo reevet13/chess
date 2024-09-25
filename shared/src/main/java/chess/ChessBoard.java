@@ -11,7 +11,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    ChessPiece[][] squares;
+    public final ChessPiece[][] squares;
     public ChessBoard() {
         squares = new ChessPiece[8][8];
     }
