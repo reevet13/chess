@@ -59,16 +59,16 @@ public class ChessGame {
             return null;
         }
 
-        Collection<ChessMove> potentialMoves = currentPiece.pieceMoves(board, startPosition);
-        Collection<ChessMove> validMoves = HashSet.newHashSet(potentialMoves.size());
+        Collection<ChessMove> potentialMoves = new ArrayList<ChessMove>(currentPiece.pieceMoves(board, startPosition));
+        Collection<ChessMove> validMoves = new ArrayList<ChessMove>(potentialMoves.size());
         for (ChessMove move : potentialMoves){
-            ChessPiece tempPiece = board.getPiece(move.getEndPosition());
-            board.addPiece(startPosition, null); //Remove the piece so that it can be moved to a new spot temporarily
+            ChessPiece newPiece = board.getPiece(move.getEndPosition());
+            board.addPiece(startPosition, null);
             board.addPiece(move.getEndPosition(), currentPiece);
             if (!isInCheck(currentPiece.getTeamColor())) {
                 validMoves.add(move);
             }
-            board.addPiece(move.getEndPosition(), tempPiece);
+            board.addPiece(move.getEndPosition(), newPiece);
             board.addPiece(startPosition, currentPiece);
         }
         return validMoves;
@@ -111,8 +111,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         //find king
         ChessPosition kingPosition = null;
-        for (int row = 1; row <= 8; row++){
-            for (int col = 1; col <= 8; col++){
+        for (int row = 1; row <= 8 && kingPosition == null; row++){
+            for (int col = 1; col <= 8 && kingPosition == null; col++){
                 ChessPiece currentPiece = board.getPiece(new ChessPosition(row, col));
                 if (currentPiece == null){
                     continue;
@@ -162,9 +162,9 @@ public class ChessGame {
                 ChessPosition currentPosition = new ChessPosition(row, col);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
                 Collection<ChessMove> moves;
-                if (currentPiece != null && currentPiece.getTeamColor() == teamColor){
+                if (currentPiece != null && teamColor == currentPiece.getTeamColor()){
                     moves = validMoves(currentPosition);
-                    if (moves != null && !moves.isEmpty()){
+                    if (!moves.isEmpty()){
                         return false;
                     }
                 }
