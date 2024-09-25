@@ -147,12 +147,12 @@ public class ChessGame {
                 if (currentPiece != null && currentPiece.getTeamColor() == teamColor){
                     moves = validMoves(currentPosition);
                     if (moves != null && !moves.isEmpty()){
-                        return true;
+                        return false;
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**
