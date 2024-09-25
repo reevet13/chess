@@ -82,16 +82,23 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> possibleMoves = validMoves(move.getStartPosition());
+        boolean correctTurn = getTeamTurn() == board.getTeamOfPiece(move.getStartPosition());
         if (possibleMoves == null){
             throw new InvalidMoveException("No valid moves available");
         }
-
         boolean isGoodMove = possibleMoves.contains(move);
-        if (isGoodMove){
+        if (isGoodMove && correctTurn){
             ChessPiece movingPiece = board.getPiece(move.getStartPosition());
+            if (move.getPromotionPiece() != null){
+                movingPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+            }
+
             board.addPiece(move.getStartPosition(), null);
             board.addPiece(move.getEndPosition(), movingPiece);
             setTeamTurn(getTeamTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        }
+        else {
+            throw new InvalidMoveException(String.format("Is the move valid? %b Is it your turn? %b", isGoodMove, correctTurn));
         }
     }
 
