@@ -61,16 +61,16 @@ public class ChessGame {
 
         Collection<ChessMove> potentialMoves = new ArrayList<ChessMove>(currentPiece.pieceMoves(board, startPosition));
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>(potentialMoves.size());
-        for (ChessMove move : potentialMoves){
-            ChessPiece newPiece = board.getPiece(move.getEndPosition());
-            board.addPiece(startPosition, null);
-            board.addPiece(move.getEndPosition(), currentPiece);
-            if (!isInCheck(currentPiece.getTeamColor())) {
-                validMoves.add(move);
+            for (ChessMove move : potentialMoves){
+                ChessPiece newPiece = board.getPiece(move.getEndPosition());
+                board.addPiece(startPosition, null);
+                board.addPiece(move.getEndPosition(), currentPiece);
+                if (!isInCheck(currentPiece.getTeamColor())) {
+                    validMoves.add(move);
+                }
+                board.addPiece(move.getEndPosition(), newPiece);
+                board.addPiece(startPosition, currentPiece);
             }
-            board.addPiece(move.getEndPosition(), newPiece);
-            board.addPiece(startPosition, currentPiece);
-        }
         return validMoves;
     }
 
@@ -146,7 +146,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && isInStalemate(teamColor);
+        return isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
     /**
@@ -157,6 +157,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        return !isInCheck(teamColor) && !hasValidMoves(teamColor);
+    }
+
+    public boolean hasValidMoves(TeamColor teamColor){
         for (int row = 1; row <= 8; row++){
             for (int col = 1; col <= 8; col ++){
                 ChessPosition currentPosition = new ChessPosition(row, col);
@@ -165,12 +169,12 @@ public class ChessGame {
                 if (currentPiece != null && teamColor == currentPiece.getTeamColor()){
                     moves = validMoves(currentPosition);
                     if (!moves.isEmpty()){
-                        return false;
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /**
