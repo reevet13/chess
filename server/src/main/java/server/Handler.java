@@ -26,7 +26,7 @@ public class Handler {
             AuthData authData = service.createUser(userData);
             res.status(200);
             return new Gson().toJson(authData);
-        } catch (BadRequestException bad){
+        } catch (Exception bad) {
             res.status(403);
             return "{ \"message\": \"Error: already taken\" }";
         }

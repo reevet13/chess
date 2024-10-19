@@ -37,7 +37,7 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/user", handler::register);
 
-        Spark.init();
+        Spark.exception(BadRequestException.class, this::badRequestExceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -56,5 +56,10 @@ public class Server {
         clearDB();
         res.status(200);
         return "{}";
+    }
+
+    private void badRequestExceptionHandler(BadRequestException ex, Request req, Response resp) {
+        resp.status(400);
+        resp.body("{ \"message\": \"Error: bad request\" }");
     }
 }

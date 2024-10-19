@@ -25,7 +25,7 @@ public class serviceTests {
         userDAO.clear();
         authDAO.clear();
 
-        testUser = new UserData("Username", "password", "email");
+        testUser = new UserData("username", "password", "email");
     }
 
     @Test
