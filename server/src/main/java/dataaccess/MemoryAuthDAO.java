@@ -16,4 +16,14 @@ public class MemoryAuthDAO implements AuthDAO{
     public void clear() {
         db = HashSet.newHashSet(16);
     }
+
+    @Override
+    public AuthData getAuth(String authToken) throws DataAccessException{
+        for (AuthData authData : db) {
+            if (authData.authToken().equals(authToken)) {
+                return authData;
+            }
+        }
+        throw new DataAccessException("Auth Token does not exist: " + authToken);
+    }
 }
