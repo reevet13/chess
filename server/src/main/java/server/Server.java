@@ -19,10 +19,8 @@ public class Server {
         //gameDAO = new SQLGameDAO();
 
         service = new Service(userDAO, authDAO);
-        //gameService = new GameService(gameDAO, authDAO);
 
         handler = new Handler(service);
-        //gameHandler = new GameHandler(gameService);
     }
 
 
@@ -36,8 +34,10 @@ public class Server {
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.delete("/db", this::clear);
         Spark.post("/user", handler::register);
+        Spark.post("/session", handler::login);
 
         Spark.exception(BadRequestException.class, this::badRequestExceptionHandler);
+        Spark.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -58,8 +58,13 @@ public class Server {
         return "{}";
     }
 
-    private void badRequestExceptionHandler(BadRequestException ex, Request req, Response resp) {
-        resp.status(400);
-        resp.body("{ \"message\": \"Error: bad request\" }");
+    private void badRequestExceptionHandler(BadRequestException ex, Request req, Response res) {
+        res.status(400);
+        res.body("{ \"message\": \"Error: bad request\" }");
+    }
+
+    private void unauthorizedExceptionHandler(UnauthorizedException ex, Request req, Response res){
+        res.status(401);
+        res.body("{ \"message\": \"Error: unauthorized\" }");
     }
 }

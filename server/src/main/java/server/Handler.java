@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.UnauthorizedException;
 import model.UserData;
 import model.AuthData;
 import service.Service;
@@ -30,6 +31,13 @@ public class Handler {
             res.status(403);
             return "{ \"message\": \"Error: already taken\" }";
         }
+    }
+
+    public Object login(Request req, Response res) throws UnauthorizedException, BadRequestException, UnauthorizedException {
+        UserData userData = new Gson().fromJson(req.body(), UserData.class);
+        AuthData authData = service.loginUser(userData);
+        res.status(200);
+        return new Gson().toJson(authData);
     }
 
 

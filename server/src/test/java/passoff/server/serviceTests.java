@@ -41,4 +41,21 @@ public class serviceTests {
         service.createUser(testUser);
         Assertions.assertThrows(BadRequestException.class, () -> service.createUser(testUser));
     }
+
+    @Test
+    @DisplayName("Proper Login User")
+    void loginUserTestPass() throws BadRequestException, UnauthorizedException, DataAccessException {
+        service.createUser(testUser);
+        AuthData authData = service.loginUser(testUser);
+        Assertions.assertEquals(authDAO.getAuth(authData.authToken()), authData);
+    }
+
+    @Test
+    @DisplayName("Improper Login User")
+    void loginUserTestFail() throws BadRequestException {
+        Assertions.assertThrows(UnauthorizedException.class, () -> service.loginUser(testUser));
+        service.createUser(testUser);
+        UserData badPass = new UserData(testUser.username(), "wrong", testUser.email());
+        Assertions.assertThrows(UnauthorizedException.class, () -> service.loginUser(badPass));
+    }
 }

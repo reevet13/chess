@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public class MemoryUserDAO implements UserDAO{
 
-    private HashSet<UserData> db = HashSet.newHashSet(16);;
+    private HashSet<UserData> db = HashSet.newHashSet(16);
 
     @Override
     public UserData getUser(String username) throws DataAccessException{
@@ -29,6 +29,27 @@ public class MemoryUserDAO implements UserDAO{
         }
 
         throw new DataAccessException("User already exists: " + user.username());
+    }
+
+    @Override
+    public boolean authenticateUser(UserData userData) throws DataAccessException {
+        String username = userData.username();
+        String password = userData.password();
+        boolean exists = false;
+        for (UserData user : db) {
+            if (user.username().equals(username)) {
+                exists = true;
+            }
+            if (user.username().equals(username) && user.password().equals(password)) {
+                return true;
+            }
+        }
+        if (exists) {
+            return false;
+        }
+        else {
+            throw new DataAccessException("User does not exist: " + username);
+        }
     }
 
     @Override
