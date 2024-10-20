@@ -26,4 +26,14 @@ public class MemoryAuthDAO implements AuthDAO{
         }
         throw new DataAccessException("Auth Token does not exist: " + authToken);
     }
+
+    @Override
+    public void deleteAuth(String authToken){
+        for (AuthData authData : db) {
+            if (authData.authToken().equals(authToken)){
+                db.remove(authData);
+                break;
+            }
+        }
+    }
 }

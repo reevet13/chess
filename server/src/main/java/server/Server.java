@@ -8,6 +8,7 @@ public class Server {
 
     UserDAO userDAO;
     AuthDAO authDAO;
+    GameDAO gameDAO;
 
     static Service service;
     Handler handler;
@@ -16,9 +17,9 @@ public class Server {
 
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
-        //gameDAO = new SQLGameDAO();
+        gameDAO = new MemoryGameDAO();
 
-        service = new Service(userDAO, authDAO);
+        service = new Service(userDAO, authDAO, gameDAO);
 
         handler = new Handler(service);
     }
@@ -35,6 +36,11 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/user", handler::register);
         Spark.post("/session", handler::login);
+        Spark.delete("/session", handler::logout);
+
+        Spark.post("/game", handler::createGame);
+        Spark.put("/game", handler::joinGame);
+        Spark.get("/game", handler::listGames);
 
         Spark.exception(BadRequestException.class, this::badRequestExceptionHandler);
         Spark.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);

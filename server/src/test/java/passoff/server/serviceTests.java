@@ -10,6 +10,7 @@ public class serviceTests {
     static Service service;
     static UserDAO userDAO;
     static AuthDAO authDAO;
+    static GameDAO gameDAO;
 
     static UserData testUser;
 
@@ -17,7 +18,7 @@ public class serviceTests {
     static void init() {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
-        service = new Service(userDAO, authDAO);
+        service = new Service(userDAO, authDAO, gameDAO);
     }
 
     @BeforeEach

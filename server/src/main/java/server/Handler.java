@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataAccess.UnauthorizedException;
 import model.UserData;
 import model.AuthData;
+import model.GameData;
 import service.Service;
 import dataAccess.BadRequestException;
 import spark.*;
@@ -33,11 +34,52 @@ public class Handler {
         }
     }
 
-    public Object login(Request req, Response res) throws UnauthorizedException, BadRequestException, UnauthorizedException {
+    public Object login(Request req, Response res) throws UnauthorizedException {
         UserData userData = new Gson().fromJson(req.body(), UserData.class);
         AuthData authData = service.loginUser(userData);
         res.status(200);
         return new Gson().toJson(authData);
+    }
+
+    public Object logout(Request req, Response res) throws UnauthorizedException {
+        String authToken = req.headers("authorization");
+        service.logoutUser(authToken);
+        res.status(200);
+        return "{}";
+    }
+
+    public Object createGame(Request req, Response res) throws BadRequestException, UnauthorizedException {
+        if (!req.body().contains("\"gameName\":")) {
+            throw new BadRequestException("Game name required");
+        }
+        GameData gameData = new Gson().fromJson(req.body(), GameData.class);
+        String authToken = req.headers("authorization");
+        int gameID = service.createGame(authToken, gameData.gameName());
+        res.status(200);
+        return "{ \"gameID\": %d }".formatted(gameID);
+    }
+
+    public Object joinGame(Request req, Response res) throws BadRequestException, UnauthorizedException{
+        if (!req.body().contains("\"gameID\":")){
+            throw new BadRequestException("GameID required");
+        }
+        String authToken = req.headers("authorization");
+        record JoinGameData(String playerColor, int gameID) {}
+        JoinGameData joinData = new Gson().fromJson(req.body(), JoinGameData.class);
+        boolean joined = service.joinGame(authToken, joinData.gameID(), joinData.playerColor());
+        if (!joined) {
+            res.status(403);
+            return "{ \"message\": \"Error: already taken\" }";
+        }
+        res.status(200);
+        return "{}";
+    }
+
+    public Object listGames(Request req, Response res) throws BadRequestException, UnauthorizedException{
+        String authToken = req.headers("authorization");
+        GamesList games = new GamesList(service.listGames(authToken));
+        res.status(200);
+        return new Gson().toJson(games);
     }
 
 
