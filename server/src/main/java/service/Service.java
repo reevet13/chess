@@ -7,6 +7,7 @@ import model.AuthData;
 import dataAccess.*;
 
 import javax.xml.crypto.Data;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -106,6 +107,15 @@ public class Service {
             throw new BadRequestException(e.getMessage());
         }
         return true;
+    }
+
+    public HashSet<GameData> listGames(String authToken) throws UnauthorizedException {
+        try {
+            authDAO.getAuth(authToken);
+        } catch (DataAccessException e){
+            throw new UnauthorizedException();
+        }
+        return gameDAO.listGames();
     }
 
     public void clear() {

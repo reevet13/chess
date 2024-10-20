@@ -46,4 +46,14 @@ public class MemoryGameDAO implements GameDAO{
             db.add(game);
         }
     }
+
+    @Override
+    public HashSet<GameData> listGames() {
+        return db;
+    }
+
+    @Override
+    public void clear() {
+        db = HashSet.newHashSet(16);
+    }
 }

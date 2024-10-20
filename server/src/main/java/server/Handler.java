@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.UnauthorizedException;
-import model.UserData;
-import model.AuthData;
-import model.GameData;
+import model.*;
 import service.Service;
 import dataAccess.BadRequestException;
 import spark.*;
