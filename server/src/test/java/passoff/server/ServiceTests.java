@@ -11,7 +11,7 @@ import service.Service;
 
 import java.util.HashSet;
 
-public class serviceTests {
+public class ServiceTests {
     static Service service;
     static UserDAO userDAO;
     static AuthDAO authDAO;
