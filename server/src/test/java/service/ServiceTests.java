@@ -28,14 +28,17 @@ public class ServiceTests {
         gameDAO = new MemoryGameDAO();
         service = new Service(userDAO, authDAO, gameDAO);
 
-        authData = new AuthData("Username", "authToken");
-        authDAO.addAuth(authData);
+
     }
 
     @BeforeEach
     void setup() {
         userDAO.clear();
         gameDAO.clear();
+        authDAO.clear();
+
+        authData = new AuthData("Username", "authToken");
+        authDAO.addAuth(authData);
 
         testUser = new UserData("username", "password", "email");
     }
@@ -104,12 +107,15 @@ public class ServiceTests {
     @Test
     @DisplayName("Create Valid Game")
     void createGameTestPositive() throws UnauthorizedException, BadRequestException {
-        int gameID = service.createGame(authData.authToken(), "name");
-        Assertions.assertTrue(gameDAO.gameExists(gameID));
+        int gameID = service.createGame(authData.authToken(), "name1");
+        Assertions.assertTrue(gameDAO.gameExists(gameID), "Game ID 1 should exist after creation");
 
-        int gameID2 = service.createGame(authData.authToken(), "name");
-        Assertions.assertNotEquals(gameID, gameID2);
+        int gameID2 = service.createGame(authData.authToken(), "name2");
+        Assertions.assertTrue(gameDAO.gameExists(gameID2), "Game ID 2 should exist after creation");
+
+        Assertions.assertNotEquals(gameID, gameID2, "Game IDs should not be the same for two different games");
     }
+
 
     @Test
     @DisplayName("Create Invalid Game")
