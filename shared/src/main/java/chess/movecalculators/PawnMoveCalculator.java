@@ -25,7 +25,8 @@ public class PawnMoveCalculator {
         return pawnMoves;
     }
 
-    private static void addStandardMoves(Collection<ChessMove> pawnMoves, ChessBoard board, ChessPosition startPosition, int direction, ChessGame.TeamColor color) {
+    private static void addStandardMoves(Collection<ChessMove> pawnMoves, ChessBoard board,
+                                         ChessPosition startPosition, int direction, ChessGame.TeamColor color) {
         int currentRow = startPosition.getRow();
         int nextRow = currentRow + direction;
         ChessPosition oneStep = new ChessPosition(nextRow, startPosition.getColumn());
@@ -48,7 +49,8 @@ public class PawnMoveCalculator {
         }
     }
 
-    private static void addCaptureMoves(Collection<ChessMove> pawnMoves, ChessBoard board, ChessPosition startPosition, int direction, ChessGame.TeamColor color) {
+    private static void addCaptureMoves(Collection<ChessMove> pawnMoves, ChessBoard board,
+                                        ChessPosition startPosition, int direction, ChessGame.TeamColor color) {
         int nextRow = startPosition.getRow() + direction;
 
         ChessPosition rightCapture = new ChessPosition(nextRow, startPosition.getColumn() + 1);
@@ -81,7 +83,8 @@ public class PawnMoveCalculator {
         return endPiece != null && endPiece.getTeamColor() != color;
     }
 
-    private static void addPromotionMoves(Collection<ChessMove> pawnMoves, ChessPosition startPosition, ChessPosition endPosition) {
+    private static void addPromotionMoves(Collection<ChessMove> pawnMoves, ChessPosition startPosition,
+                                          ChessPosition endPosition) {
         pawnMoves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN));
         pawnMoves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.KNIGHT));
         pawnMoves.add(new ChessMove(startPosition, endPosition, ChessPiece.PieceType.BISHOP));

@@ -33,7 +33,8 @@ public class QueenMoveCalculator {
     }
 
     // Helper method to add moves in a straight line or diagonal based on the direction
-    private static void addMovesInDirection(Collection<ChessMove> queenMoves, ChessBoard board, ChessPosition startPosition, int rowShift, int colShift) {
+    private static void addMovesInDirection(Collection<ChessMove> queenMoves, ChessBoard board,
+                                            ChessPosition startPosition, int rowShift, int colShift) {
         ChessPosition endPosition;
         int currentRow = startPosition.getRow();
         int currentCol = startPosition.getColumn();
