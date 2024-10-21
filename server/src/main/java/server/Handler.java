@@ -73,7 +73,7 @@ public class Handler {
         return "{}";
     }
 
-    public Object listGames(Request req, Response res) throws BadRequestException, UnauthorizedException{
+    public Object listGames(Request req, Response res) throws UnauthorizedException{
         String authToken = req.headers("authorization");
         GamesList games = new GamesList(service.listGames(authToken));
         res.status(200);
