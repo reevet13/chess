@@ -94,12 +94,22 @@ public class Service {
         String blackUsername = gameData.blackUsername();
 
         if (Objects.equals(color, "WHITE")) {
-            if(whiteUsername != null && !whiteUsername.equals(authData.username())) return false;
-            else whiteUsername = authData.username();
+            if(whiteUsername != null && !whiteUsername.equals(authData.username())) {
+                return false;
+            }
+            else {
+                whiteUsername = authData.username();
+            }
         } else if (Objects.equals(color, "BLACK")) {
-            if(blackUsername != null && !blackUsername.equals(authData.username())) return false;
-            else blackUsername = authData.username();
-        } else throw new BadRequestException("%s is not black or white".formatted(color));
+            if(blackUsername != null && !blackUsername.equals(authData.username())) {
+                return false;
+            }
+            else {
+                blackUsername = authData.username();
+            }
+        } else {
+            throw new BadRequestException("%s is not black or white".formatted(color));
+        }
         try {
             gameDAO.updateGame(new GameData(gameID, whiteUsername, blackUsername, gameData.gameName(), gameData.game()));
         } catch (DataAccessException e) {
