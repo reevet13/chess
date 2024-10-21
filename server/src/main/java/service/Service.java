@@ -4,7 +4,7 @@ import chess.*;
 import model.GameData;
 import model.UserData;
 import model.AuthData;
-import dataAccess.*;
+import dataaccess.*;
 
 import java.util.HashSet;
 import java.util.Objects;

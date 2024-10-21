@@ -1,10 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.UnauthorizedException;
+import dataaccess.UnauthorizedException;
 import model.*;
 import service.Service;
-import dataAccess.BadRequestException;
+import dataaccess.BadRequestException;
 import spark.*;
 
 public class Handler {

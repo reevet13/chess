@@ -2,7 +2,7 @@ package passoff.server;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import dataAccess.*;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -120,18 +120,18 @@ public class ServiceTests {
     @Test
     @DisplayName("Proper List Games")
     void listGamesTestPositive() throws UnauthorizedException, BadRequestException {
-        int gameID_1 = service.createGame(authData.authToken(), "name");
-        int gameID_2 = service.createGame(authData.authToken(), "name");
-        int gameID_3 = service.createGame(authData.authToken(), "name");
+        int gameID1 = service.createGame(authData.authToken(), "name");
+        int gameID2 = service.createGame(authData.authToken(), "name");
+        int gameID3 = service.createGame(authData.authToken(), "name");
 
         HashSet<GameData> expected = HashSet.newHashSet(8);
         ChessGame game = new ChessGame();
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         game.setBoard(board);
-        expected.add(new GameData(gameID_1, null, null, "name", game));
-        expected.add(new GameData(gameID_2, null, null, "name", game));
-        expected.add(new GameData(gameID_3, null, null, "name", game));
+        expected.add(new GameData(gameID1, null, null, "name", game));
+        expected.add(new GameData(gameID2, null, null, "name", game));
+        expected.add(new GameData(gameID3, null, null, "name", game));
 
         Assertions.assertEquals(expected, service.listGames(authData.authToken()));
     }

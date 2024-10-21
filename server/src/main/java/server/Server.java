@@ -1,7 +1,7 @@
 package server;
 
 import service.Service;
-import dataAccess.*;
+import dataaccess.*;
 import spark.*;
 
 public class Server {
