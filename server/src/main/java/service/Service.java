@@ -6,7 +6,6 @@ import model.UserData;
 import model.AuthData;
 import dataAccess.*;
 
-import javax.xml.crypto.Data;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -100,7 +99,7 @@ public class Service {
         } else if (Objects.equals(color, "BLACK")) {
             if(blackUsername != null && !blackUsername.equals(authData.username())) return false;
             else blackUsername = authData.username();
-        } else if (color != null) throw new BadRequestException("%s is not black or white".formatted(color));
+        } else throw new BadRequestException("%s is not black or white".formatted(color));
         try {
             gameDAO.updateGame(new GameData(gameID, whiteUsername, blackUsername, gameData.gameName(), gameData.game()));
         } catch (DataAccessException e) {
@@ -121,6 +120,7 @@ public class Service {
     public void clear() {
         userDAO.clear();
         authDAO.clear();
+        gameDAO.clear();
     }
 
     public AuthData authTokenGenerator(UserData userData) throws DataAccessException {

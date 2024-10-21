@@ -5,7 +5,11 @@ import model.AuthData;
 import java.util.HashSet;
 
 public class MemoryAuthDAO implements AuthDAO{
-    HashSet<AuthData> db = HashSet.newHashSet(16);;
+    HashSet<AuthData> db;
+
+    public MemoryAuthDAO() {
+        db = HashSet.newHashSet(16);
+    }
 
     @Override
     public void addAuth(AuthData authData){
