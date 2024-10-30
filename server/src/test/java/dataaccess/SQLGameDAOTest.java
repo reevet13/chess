@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameDAOTest {
 
@@ -109,6 +108,31 @@ public class SQLGameDAOTest {
     @Test
     void getGameNegative() {
         assertThrows(DataAccessException.class, () -> gameDAO.getGame(testData.gameID()));
+    }
+
+    @Test
+    void gameExistsPositive() throws DataAccessException {
+        gameDAO.createGame(testData);
+        assertTrue(gameDAO.gameExists(testData.gameID()));
+    }
+
+    @Test
+    void gameExistsNegative() {
+        assertFalse(gameDAO.gameExists(testData.gameID()));
+    }
+
+    @Test
+    void updateGamePositive() throws DataAccessException {
+        gameDAO.createGame(testData);
+        GameData resultingGame = new GameData(testData.gameID(), "whiter", "black",
+                "gameName", testData.game());
+                gameDAO.updateGame(resultingGame);
+                assertEquals(resultingGame, gameDAO.getGame(testData.gameID()));
+    }
+
+    @Test
+    void updateGameNegative() {
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(testData));
     }
 
 
