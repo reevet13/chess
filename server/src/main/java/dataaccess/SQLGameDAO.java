@@ -116,7 +116,7 @@ public class SQLGameDAO implements GameDAO{
                 statement.setString(4, serializeGame(game.game()));
                 statement.setInt(5, game.gameID());
                 int rowsUpdated = statement.executeUpdate();
-                if (rowsUpdated == 0) throw new DataAccessException("Requested game to update not fount");
+                if (rowsUpdated == 0) {throw new DataAccessException("Requested game to update not fount");}
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

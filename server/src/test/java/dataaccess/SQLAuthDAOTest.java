@@ -74,14 +74,8 @@ public class SQLAuthDAOTest {
         authDAO.addAuth(testAuth);
         authDAO.deleteAuth(testAuth.authToken());
 
-        try (var con = DatabaseManager.getConnection()) {
-            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
-                statement.setString(1, testAuth.username());
-                try (var results = statement.executeQuery()) {
-                    assertFalse(results.next());
-                }
-            }
-        }
+        assertFalse(isAuthTokenPresent(testAuth.username())); // Checks that duplicate was not added
+
     }
 
     @Test
@@ -107,12 +101,16 @@ public class SQLAuthDAOTest {
         authDAO.addAuth(testAuth);
         authDAO.clear();
 
-        try (var con = DatabaseManager.getConnection()) {
-            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
-                statement.setString(1, testAuth.username());
-                try (var results = statement.executeQuery()) {
-                    assertFalse(results.next());
-                }
+        assertFalse(isAuthTokenPresent(testAuth.username())); // Checks that duplicate was not added
+
+    }
+
+    private boolean isAuthTokenPresent(String username) throws SQLException, DataAccessException {
+        try (var con = DatabaseManager.getConnection();
+             var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
+            statement.setString(1, username);
+            try (var results = statement.executeQuery()) {
+                return results.next(); // Returns true if a result is found
             }
         }
     }
