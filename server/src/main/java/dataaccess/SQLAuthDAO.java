@@ -34,6 +34,41 @@ public class SQLAuthDAO implements AuthDAO{
                 statement.setString(2, authData.authToken());
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {}
+        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
+    }
+
+    @Override
+    public void deleteAuth(String authToken) {
+        try (Connection con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
+                statement.setString(1, authToken);
+                statement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
+    }
+
+    @Override
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE authToken=?")) {
+                statement.setString(1, authToken);
+                try (var results = statement.executeQuery()) {
+                    results.next();
+                    var username = results.getString("username");
+                    return new AuthData(username, authToken);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(("Auth Token does not exist: " + authToken));
+        }
+    }
+
+    @Override
+    public void clear() {
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("TRUNCATE auth")) {
+                statement.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
     }
 }
