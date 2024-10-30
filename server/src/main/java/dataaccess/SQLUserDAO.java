@@ -1,4 +1,4 @@
-package dataaccess;
+/*package dataaccess;
 
 import model.UserData;
 
@@ -40,4 +40,4 @@ public class SQLUserDAO implements UserDAO{
             throw new DataAccessException("User not found: " + username);
         }
     }
-}
+}*/
