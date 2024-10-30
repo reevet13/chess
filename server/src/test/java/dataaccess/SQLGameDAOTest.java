@@ -135,6 +135,21 @@ public class SQLGameDAOTest {
         assertThrows(DataAccessException.class, () -> gameDAO.updateGame(testData));
     }
 
+    @Test
+    void clear() throws DataAccessException, SQLException {
+        gameDAO.createGame(testData);
+        gameDAO.clear();
+
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT gameID FROM game WHERE gameID=?")) {
+                statement.setInt(1, testData.gameID());
+                try (var results = statement.executeQuery()) {
+                    assertFalse(results.next());
+                }
+            }
+        }
+    }
+
 
     private ChessGame deserializeGame(String serializedGame) {
         return new Gson().fromJson(serializedGame, ChessGame.class);
