@@ -63,4 +63,10 @@ public class SQLUserDAOTest {
         assertTrue(BCrypt.checkpw(testUser.password(), resultPassword));
         assertEquals(testUser.email(), resultEmail);
     }
+
+    @Test
+    void createUserNegative() throws DataAccessException {
+        userDAO.createUser(testUser);
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(testUser));
+    }
 }

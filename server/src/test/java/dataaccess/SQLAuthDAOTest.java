@@ -63,8 +63,8 @@ public class SQLAuthDAOTest {
         authDAO.addAuth(testAuth);
         authDAO.addAuth(testAuth);
 
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
             statement.setString(1, testAuth.username());
                 try (var results = statement.executeQuery()) {
                     results.next();
