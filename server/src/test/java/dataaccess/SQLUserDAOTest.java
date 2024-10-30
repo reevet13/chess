@@ -84,4 +84,16 @@ public class SQLUserDAOTest {
     void getUserNegative() {
         assertThrows(DataAccessException.class, () -> userDAO.getUser(testUser.username()));
     }
+
+    @Test
+    void authenticateUserPositive() throws DataAccessException {
+        userDAO.createUser(testUser);
+        assertTrue(userDAO.authenticateUser(testUser.username(), testUser.password()));
+    }
+
+    @Test
+    void authenticateUserNegative() throws DataAccessException {
+        userDAO.createUser(testUser);
+        assertFalse(userDAO.authenticateUser(testUser.username(), "wrong password"));
+    }
 }

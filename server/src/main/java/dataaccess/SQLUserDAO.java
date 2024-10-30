@@ -60,9 +60,9 @@ public class SQLUserDAO implements UserDAO{
     }
 
     @Override
-    public boolean authenticateUser(UserData user) throws DataAccessException {
-        String hash = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-        return BCrypt.checkpw(user.password(), hash);
+    public boolean authenticateUser(String username, String password) throws DataAccessException {
+        UserData user = getUser(username);
+        return BCrypt.checkpw(password, user.password());
     }
 
     @Override

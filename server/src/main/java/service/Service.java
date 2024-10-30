@@ -35,7 +35,7 @@ public class Service {
 
     public AuthData loginUser(UserData userData) throws UnauthorizedException {
         try {
-            if (userDAO.authenticateUser(userData)) {
+            if (userDAO.authenticateUser(userData.username(), userData.password())) {
                 return authTokenGenerator(userData); // Reusing the helper method
             } else {
                 throw new UnauthorizedException();
