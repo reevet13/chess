@@ -69,4 +69,19 @@ public class SQLUserDAOTest {
         userDAO.createUser(testUser);
         assertThrows(DataAccessException.class, () -> userDAO.createUser(testUser));
     }
+
+    @Test
+    void getUserPositive() throws DataAccessException {
+        userDAO.createUser(testUser);
+        UserData resultUser = userDAO.getUser(testUser.username());
+
+        assertEquals(testUser.username(), resultUser.username());
+        assertTrue(BCrypt.checkpw(testUser.password(), resultUser.password()));
+        assertEquals(testUser.email(), resultUser.email());
+    }
+
+    @Test
+    void getUserNegative() {
+        assertThrows(DataAccessException.class, () -> userDAO.getUser(testUser.username()));
+    }
 }
