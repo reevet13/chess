@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SQLGameDAOTest {
 
@@ -64,6 +65,12 @@ public class SQLGameDAOTest {
             }
         }
         assertEquals(testData, resultData);
+    }
+
+    @Test
+    void createGameNegative() throws DataAccessException {
+        gameDAO.createGame(testData);
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(testData));
     }
 
 
