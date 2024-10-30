@@ -89,4 +89,22 @@ public class SQLAuthDAOTest {
         }
     }
 
+    @Test
+    void deleteAuthNegative() throws DataAccessException, SQLException {
+        assertDoesNotThrow(() -> authDAO.deleteAuth("fakeToken"));
+    }
+
+    @Test
+    void getAuthPositive() throws DataAccessException {
+        authDAO.addAuth(testAuth);
+        AuthData result = authDAO.getAuth(testAuth.authToken());
+        assertEquals(testAuth, result);
+    }
+
+    @Test
+    void getAuthNegative() {
+        authDAO.addAuth(testAuth);
+        assertThrows(DataAccessException.class, () -> authDAO.getAuth("fakeToken"));
+    }
+
 }
