@@ -1,8 +1,8 @@
-/*package dataaccess;
+package dataaccess;
 
 import model.UserData;
 
-import javax.xml.crypto.Data;
+import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO{
@@ -24,7 +24,9 @@ public class SQLUserDAO implements UserDAO{
         } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
     }
 
-    @Override UserData getUser(String username) throws DataAccessException {
+
+    @Override
+    public UserData getUser(String username) throws DataAccessException {
         try (var con = DatabaseManager.getConnection()) {
             try (var statement = con.prepareStatement("SELECT username, " +
                     "password, email FROM user WHERE username =?")) {
@@ -40,4 +42,38 @@ public class SQLUserDAO implements UserDAO{
             throw new DataAccessException("User not found: " + username);
         }
     }
-}*/
+
+    @Override
+    public void createUser(UserData user) throws DataAccessException {
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("INSERT INTO user (username, password, email) " +
+                    "VALUES(?, ?, ?)")) {
+                String hash = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+                statement.setString(1, user.username());
+                statement.setString(2, hash);
+                statement.setString(3, user.email());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("User already exists" + user.username());
+        }
+    }
+
+    @Override
+    public boolean authenticateUser(UserData user) throws DataAccessException {
+        String hash = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+        return BCrypt.checkpw(user.password(), hash);
+    }
+
+    @Override
+    public void clear() {
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("TRUNCATE user")) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException | DataAccessException ignore) {}
+    }
+
+}
