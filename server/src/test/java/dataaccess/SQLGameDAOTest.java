@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -71,6 +72,32 @@ public class SQLGameDAOTest {
     void createGameNegative() throws DataAccessException {
         gameDAO.createGame(testData);
         assertThrows(DataAccessException.class, () -> gameDAO.createGame(testData));
+    }
+
+    @Test
+    void listGamesPositive () throws DataAccessException, SQLException {
+        gameDAO.createGame(testData);
+        gameDAO.createGame(new GameData(4321, "white", "black", "gameName",
+                new ChessGame()));
+
+        HashSet<GameData> resultGames = gameDAO.listGames();
+
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, " +
+                    "chessGame FROM game")) {
+                try (var results = statement.executeQuery()) {
+                    int i = 0;
+                    while (results.next()) { i++; }
+                    assertEquals(i, resultGames.size(), "Incorrect game count");
+                }
+            }
+        }
+    }
+
+    @Test
+    void listGamesNegative() {
+        HashSet<GameData> games = gameDAO.listGames();
+        assertEquals(0, games.size(), "Should be empty set");
     }
 
 
