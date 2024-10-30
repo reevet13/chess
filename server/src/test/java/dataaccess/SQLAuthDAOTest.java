@@ -74,4 +74,19 @@ public class SQLAuthDAOTest {
         }
     }
 
+    @Test
+    void deleteAuthPositive() throws DataAccessException, SQLException {
+        authDAO.addAuth(testAuth);
+        authDAO.deleteAuth(testAuth.authToken());
+
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
+                statement.setString(1, testAuth.username());
+                try (var results = statement.executeQuery()) {
+                    assertFalse(results.next());
+                }
+            }
+        }
+    }
+
 }
