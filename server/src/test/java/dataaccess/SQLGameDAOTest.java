@@ -100,6 +100,17 @@ public class SQLGameDAOTest {
         assertEquals(0, games.size(), "Should be empty set");
     }
 
+    @Test
+    void getGamePositive() throws DataAccessException {
+        gameDAO.createGame(testData);
+        assertEquals(testData, gameDAO.getGame(testData.gameID()));
+    }
+
+    @Test
+    void getGameNegative() {
+        assertThrows(DataAccessException.class, () -> gameDAO.getGame(testData.gameID()));
+    }
+
 
     private ChessGame deserializeGame(String serializedGame) {
         return new Gson().fromJson(serializedGame, ChessGame.class);
