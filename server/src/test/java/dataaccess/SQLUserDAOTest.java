@@ -96,4 +96,20 @@ public class SQLUserDAOTest {
         userDAO.createUser(testUser);
         assertFalse(userDAO.authenticateUser(testUser.username(), "wrong password"));
     }
+
+    @Test
+    void clear() throws DataAccessException, SQLException {
+        userDAO.createUser(testUser);
+        userDAO.clear();
+
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT username, password, email FROM user " +
+                    "WHERE username=?")) {
+                statement.setString(1, testUser.username());
+                try (var results = statement.executeQuery()) {
+                    assertFalse(results.next());
+                }
+            }
+        }
+    }
 }
