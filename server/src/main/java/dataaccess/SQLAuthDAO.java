@@ -34,7 +34,7 @@ public class SQLAuthDAO implements AuthDAO{
                 statement.setString(2, authData.authToken());
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
+        } catch (SQLException | DataAccessException ignored) {}
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SQLAuthDAO implements AuthDAO{
                 statement.setString(1, authToken);
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
+        } catch (SQLException | DataAccessException ignored) {}
     }
 
     @Override
@@ -69,6 +69,6 @@ public class SQLAuthDAO implements AuthDAO{
             try (var statement = con.prepareStatement("TRUNCATE auth")) {
                 statement.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {throw new RuntimeException(e);}
+        } catch (SQLException | DataAccessException ignored) {}
     }
 }

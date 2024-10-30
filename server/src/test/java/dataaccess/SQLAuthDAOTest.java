@@ -57,4 +57,21 @@ public class SQLAuthDAOTest {
         }
         assertEquals(testAuth, new AuthData(resultUsername, resultToken));
     }
+
+    @Test
+    void addAuthNegative() throws DataAccessException, SQLException {
+        authDAO.addAuth(testAuth);
+        authDAO.addAuth(testAuth);
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
+            statement.setString(1, testAuth.username());
+                try (var results = statement.executeQuery()) {
+                    results.next();
+                    assertFalse(results.next()); //There should only be one element, despite having added two
+                }
+            }
+        }
+    }
+
 }
