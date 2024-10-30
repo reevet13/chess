@@ -1,15 +1,10 @@
 package dataaccess;
 
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
-import dataaccess.SQLAuthDAO;
 import model.AuthData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,7 +85,7 @@ public class SQLAuthDAOTest {
     }
 
     @Test
-    void deleteAuthNegative() throws DataAccessException, SQLException {
+    void deleteAuthNegative(){
         assertDoesNotThrow(() -> authDAO.deleteAuth("fakeToken"));
     }
 
