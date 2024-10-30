@@ -107,4 +107,19 @@ public class SQLAuthDAOTest {
         assertThrows(DataAccessException.class, () -> authDAO.getAuth("fakeToken"));
     }
 
+    @Test
+    void clear() throws DataAccessException, SQLException {
+        authDAO.addAuth(testAuth);
+        authDAO.clear();
+
+        try (var con = DatabaseManager.getConnection()) {
+            try (var statement = con.prepareStatement("SELECT username, authToken FROM auth WHERE username=?")) {
+                statement.setString(1, testAuth.username());
+                try (var results = statement.executeQuery()) {
+                    assertFalse(results.next());
+                }
+            }
+        }
+    }
+
 }
