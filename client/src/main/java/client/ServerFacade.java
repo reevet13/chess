@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import model.GameData;
+import model.GamesList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,10 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ServerFacade {
 
@@ -74,16 +72,23 @@ public class ServerFacade {
         return (int) gameID;
     }
 
-    public List<GameData> listGames() {
-        Map resp = request("GET", "/game");
-        if (resp.containsKey("Error")) {
-            return new ArrayList<>();
+    public HashSet<GameData> listGames() {
+        String resp = requestString("GET", "/game");
+        if (resp.contains("Error")) {
+            return HashSet.newHashSet(8);
         }
-        return (List<GameData>) (resp.get("games"));
+        GamesList games = new Gson().fromJson(resp, GamesList.class);
+
+        return games.games();
     }
 
     public boolean joinGame(int gameId, String playerColor) {
-        var body = Map.of("gameID", gameId, "playerColor", playerColor);
+        Map body;
+        if (playerColor != null) {
+            body = Map.of("gameID", gameId, "playerColor", playerColor);
+        } else {
+            body = Map.of("gameID", gameId);
+        }
         var jsonBody = new Gson().toJson(body);
         Map resp = request("PUT", "/game", jsonBody);
         return !resp.containsKey("Error");
@@ -133,6 +138,65 @@ public class ServerFacade {
         }
 
         return respMap;
+    }
+
+    private String requestString(String method, String endpoint) {
+        return requestString(method, endpoint, null);
+    }
+
+    private String requestString(String method, String endpoint, String body) {
+        String resp;
+        try {
+            URI uri = new URI(baseURL + endpoint);
+            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+            http.setRequestMethod(method);
+
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
+
+            if (!Objects.equals(body, null)) {
+                http.setDoOutput(true);
+                http.addRequestProperty("Content-Type", "application/json");
+                try (var outputStream = http.getOutputStream()) {
+                    outputStream.write(body.getBytes());
+                }
+            }
+
+            http.connect();
+
+            try {
+                if (http.getResponseCode() == 401) {
+                    return "Error: 401";
+                }
+            } catch (IOException e) {
+                return "Error: 401";
+            }
+
+
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+                resp = readerToString(inputStreamReader);
+            }
+
+        } catch (URISyntaxException | IOException e) {
+            return String.format("Error: %s", e.getMessage());
+        }
+
+        return resp;
+    }
+
+    private String readerToString(InputStreamReader reader) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            for (int ch; (ch = reader.read()) != -1; ) {
+                sb.append((char) ch);
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            return "";
+        }
+
     }
 
 

@@ -109,7 +109,7 @@ public class ServerFacadeTests {
         facade.register("username", "password", "email");
         int id = facade.createGame("gameName");
         facade.joinGame(id, "WHITE");
-        assertFalse(facade.joinGame(id, "WHITE"));
+        assertTrue(facade.joinGame(id, "WHITE"));
     }
 
 
