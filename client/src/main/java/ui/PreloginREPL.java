@@ -36,12 +36,11 @@ public class PreloginREPL {
                     if (server.login(input[1], input[2])) {
                         out.println("You are now logged in");
                         loggedIn = true;
-                        break;
                     } else {
                         out.println("Username or password incorrect, please try again");
                         printLogin();
-                        break;
                     }
+                    break;
                 case "register":
                     if (input.length != 4) {
                         out.println("Please provide a username, password, and email");
