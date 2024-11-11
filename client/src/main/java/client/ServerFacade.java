@@ -47,7 +47,7 @@ public class ServerFacade {
     }
 
     public boolean logout() {
-        Map resp = request();
+        Map resp = request("DELETE", "/session");
         if (resp.containsKey("Error")) {
             return false;
         }
@@ -67,7 +67,7 @@ public class ServerFacade {
     }
 
     public HashSet<GameData> listGames() {
-        String resp = requestString();
+        String resp = requestString("GET", "/game");
         if (resp.contains("Error")) {
             return HashSet.newHashSet(8);
         }
@@ -88,8 +88,8 @@ public class ServerFacade {
         return !resp.containsKey("Error");
     }
 
-    private Map request () {
-        return request("DELETE", "/session", null);
+    private Map request (String method, String endpoint) {
+        return request(method, endpoint, null);
     }
 
     private Map request(String method, String endpoint, String body) {
@@ -134,14 +134,14 @@ public class ServerFacade {
         return respMap;
     }
 
-    private String requestString() {
-        return requestString("GET");
+    private String requestString(String method, String endpoint) {
+        return requestString(method, endpoint, null);
     }
 
-    private String requestString(String method) {
+    private String requestString(String method, String endpoint, String body) {
         String resp;
         try {
-            URI uri = new URI(baseURL + "/game");
+            URI uri = new URI(baseURL + endpoint);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
 
@@ -149,11 +149,11 @@ public class ServerFacade {
                 http.addRequestProperty("authorization", authToken);
             }
 
-            if (!Objects.equals(null, null)) {
+            if (!Objects.equals(body, null)) {
                 http.setDoOutput(true);
                 http.addRequestProperty("Content-Type", "application/json");
                 try (var outputStream = http.getOutputStream()) {
-                    outputStream.write(((String) null).getBytes());
+                    outputStream.write(body.getBytes());
                 }
             }
 

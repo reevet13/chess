@@ -5,6 +5,7 @@ import client.ServerFacade;
 import java.util.Scanner;
 
 import static java.lang.System.out;
+import static ui.EscapeSequences.*;
 
 public class PreloginREPL {
 
@@ -18,6 +19,7 @@ public class PreloginREPL {
 
     public void run() {
         boolean loggedIn = false;
+        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         out.println("Welcome to Chess! Enter 'help' to get started.");
         while (!loggedIn) {
             String[] input = getUserInput();
@@ -36,11 +38,12 @@ public class PreloginREPL {
                     if (server.login(input[1], input[2])) {
                         out.println("You are now logged in");
                         loggedIn = true;
+                        break;
                     } else {
                         out.println("Username or password incorrect, please try again");
                         printLogin();
+                        break;
                     }
-                    break;
                 case "register":
                     if (input.length != 4) {
                         out.println("Please provide a username, password, and email");
@@ -50,11 +53,12 @@ public class PreloginREPL {
                     if (server.register(input[1], input[2], input[3])) {
                         out.println("You are now registered and logged in");
                         loggedIn = true;
+                        break;
                     } else {
                         out.println("Username already in use, please choose a new one");
                         printRegister();
+                        break;
                     }
-                    break;
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();
