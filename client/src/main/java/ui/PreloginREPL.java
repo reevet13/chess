@@ -5,19 +5,19 @@ import client.ServerFacade;
 import java.util.Scanner;
 
 import static java.lang.System.out;
-import static ui.EscapeSequences.*;
 
 public class PreloginREPL {
 
     ServerFacade server;
+    PostloginREPL postloginREPL;
 
     public PreloginREPL(ServerFacade server) {
         this.server = server;
+        postloginREPL = new PostloginREPL(server);
     }
 
     public void run() {
         boolean loggedIn = false;
-        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         out.println("Welcome to Chess! Enter 'help' to get started.");
         while (!loggedIn) {
             String[] input = getUserInput();
@@ -65,6 +65,7 @@ public class PreloginREPL {
         }
 
         postloginREPL.run();
+
     }
 
     private String[] getUserInput() {
@@ -76,15 +77,17 @@ public class PreloginREPL {
     private void printHelpMenu() {
         printRegister();
         printLogin();
-        out.println("help - show menu");
         out.println("quit - stop playing");
+        out.println("help - show this menu");
     }
 
     private void printRegister() {
         out.println("register <USERNAME> <PASSWORD> <EMAIL> - create a new user");
     }
+
     private void printLogin() {
         out.println("login <USERNAME> <PASSWORD> - login to an existing user");
     }
+
 
 }

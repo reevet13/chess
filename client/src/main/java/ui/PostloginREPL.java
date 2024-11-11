@@ -1,33 +1,21 @@
 package ui;
 
 import client.ServerFacade;
-import model.GameData;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.System.out;
-import static ui.EscapeSequences.*;
 
 public class PostloginREPL {
 
     ServerFacade server;
-    List<GameData> games;
-
-    boolean inGame;
-
     public PostloginREPL(ServerFacade server) {
         this.server = server;
-        games = new ArrayList<GameData>();
     }
 
     public void run() {
         boolean loggedIn = true;
-        inGame = false;
-        out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
-        while (loggedIn && !inGame) {
+        while (loggedIn) {
             String[] input = getUserInput();
             switch (input[0]) {
                 case "quit":
@@ -36,12 +24,10 @@ public class PostloginREPL {
                     printHelpMenu();
                     break;
                 case "logout":
-                    server.logout();
                     loggedIn = false;
                     break;
                 case "list":
-                    refreshGames();
-                    printGames();
+                    out.println(server.listGames());
                     break;
                 case "create":
                     if (input.length != 2) {
@@ -49,46 +35,38 @@ public class PostloginREPL {
                         printCreate();
                         break;
                     }
-                    server.createGame(input[1]);
-                    out.printf("Created game: %s%n", input[1]);
+                    int gameID = server.createGame(input[1]);
+                    out.printf("Created game, ID: %d%n", gameID);
                     break;
-                /*case "join":
-                    handleJoin(input);
-                    break;
-                case "observe":
-                    handleObserve(input);
-                    break;*/
+                case "join":
+                    if (input.length != 3) {
+                        out.println("Please provide a game ID and color choice");
+                        printJoin();
+                        break;
+                    }
+                    if (server.joinGame(Integer.parseInt(input[1]), input[2])) {
+                        out.println("You have joined the game");
+                        break;
+                    } else {
+                        out.println("Game does not exist or color taken");
+                        printJoin();
+                        break;
+                    }
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();
                     break;
             }
         }
-        if (!loggedIn) {
-            PreloginREPL preloginREPL = new PreloginREPL(server);
-            preloginREPL.run();
-        }
+
+        PreloginREPL preloginREPL = new PreloginREPL(server);
+        preloginREPL.run();
     }
 
     private String[] getUserInput() {
         out.print("\n[LOGGED IN] >>> ");
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine().split(" ");
-    }
-
-    private void refreshGames() {
-        games = new ArrayList<GameData>();
-        HashSet<GameData> gameList = server.listGames();
-        games.addAll(gameList);
-    }
-
-    private void printGames() {
-        for (int i = 0; i < games.size(); i++) {
-            GameData game = games.get(i);
-            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
-            String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-            out.printf("%d -- Game Name: %S | White User: %s | Black User: %s %n", i, game.gameName(), whiteUser, blackUser);
-        }
     }
 
     private void printHelpMenu() {
@@ -112,4 +90,6 @@ public class PostloginREPL {
     private void printObserve() {
         out.println("observe <ID> - observe a game");
     }
+
+
 }
