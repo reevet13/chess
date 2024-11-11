@@ -1,7 +1,13 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import client.ServerFacade;
+import model.GameData;
+import ui.EscapeSequences.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.System.out;
@@ -9,8 +15,11 @@ import static java.lang.System.out;
 public class PostloginREPL {
 
     ServerFacade server;
+    List<GameData> games;
+
     public PostloginREPL(ServerFacade server) {
         this.server = server;
+        games = new ArrayList<>();
     }
 
     public void run() {
@@ -49,8 +58,24 @@ public class PostloginREPL {
                     } else {
                         out.println("Game does not exist or color taken");
                         printJoin();
+                        break;
                     }
-                    break;
+                case "observe":
+                    if (input.length != 2) {
+                        out.println("Please provide a game ID");
+                        printObserve();
+                        break;
+                    }
+                    GameData observeGame = games.get(Integer.parseInt(input[1]));
+                    if (server.joinGame(observeGame.gameID(), null)) {
+                        out.println("You have joined the game as an observer");
+                        new Printer(observeGame.game().getBoard()).printBoard();
+                        break;
+                    } else {
+                        out.println("Game does not exist");
+                        printObserve();
+                        break;
+                    }
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();

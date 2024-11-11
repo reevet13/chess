@@ -36,7 +36,7 @@ public class PreloginREPL {
                         break;
                     }
                     if (server.login(input[1], input[2])) {
-                        out.println("You are now logged in");
+                        out.println("You are now logged in as " + input[1]);
                         loggedIn = true;
                         break;
                     } else {
@@ -51,7 +51,7 @@ public class PreloginREPL {
                         break;
                     }
                     if (server.register(input[1], input[2], input[3])) {
-                        out.println("You are now registered and logged in");
+                        out.println("You are now registered and logged in as " + input[1]);
                         loggedIn = true;
                         break;
                     } else {

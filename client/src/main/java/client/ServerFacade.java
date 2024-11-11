@@ -66,15 +66,44 @@ public class ServerFacade {
         return (int) gameID;
     }
 
-    public HashSet<GameData> listGames() {
+    public String listGames() {
         String resp = requestString("GET", "/game");
-        if (resp.contains("Error")) {
-            return HashSet.newHashSet(8);
-        }
-        GamesList games = new Gson().fromJson(resp, GamesList.class);
 
-        return games.games();
+        if (resp.contains("Error")) {
+            return "Failed to retrieve games list.";
+        }
+
+        GamesList gamesList = new Gson().fromJson(resp, GamesList.class);
+        HashSet<GameData> games = gamesList.games();
+
+        if (games.isEmpty()) {
+            return "No games currently available.";
+        }
+
+        StringBuilder result = new StringBuilder();
+        int gameNumber = 1;
+
+        for (GameData game : games) {
+            List<String> players = new ArrayList<>();
+            if (game.whiteUsername() != null && !game.whiteUsername().isEmpty()) {
+                players.add(game.whiteUsername());
+            }
+            if (game.blackUsername() != null && !game.blackUsername().isEmpty()) {
+                players.add(game.blackUsername());
+            }
+            result.append(gameNumber)
+                    .append(". Game: ")
+                    .append(game.gameName())
+                    .append(", Players: ")
+                    .append(players)
+                    .append("\n");
+            gameNumber++;
+        }
+
+        return result.toString();
     }
+
+
 
     public boolean joinGame(int gameId, String playerColor) {
         Map body;
