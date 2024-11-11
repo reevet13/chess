@@ -35,12 +35,6 @@ public class ServerFacade {
         return true;
     }
 
-    /**
-     *
-     * @param username
-     * @param password
-     * @return success
-     */
     public boolean login(String username, String password) {
         var body = Map.of("username", username, "password", password);
         var jsonBody = new Gson().toJson(body);
@@ -53,7 +47,7 @@ public class ServerFacade {
     }
 
     public boolean logout() {
-        Map resp = request("DELETE", "/session");
+        Map resp = request();
         if (resp.containsKey("Error")) {
             return false;
         }
@@ -73,7 +67,7 @@ public class ServerFacade {
     }
 
     public HashSet<GameData> listGames() {
-        String resp = requestString("GET", "/game");
+        String resp = requestString();
         if (resp.contains("Error")) {
             return HashSet.newHashSet(8);
         }
@@ -94,8 +88,8 @@ public class ServerFacade {
         return !resp.containsKey("Error");
     }
 
-    private Map request (String method, String endpoint) {
-        return request(method, endpoint, null);
+    private Map request () {
+        return request("DELETE", "/session", null);
     }
 
     private Map request(String method, String endpoint, String body) {
@@ -140,14 +134,14 @@ public class ServerFacade {
         return respMap;
     }
 
-    private String requestString(String method, String endpoint) {
-        return requestString(method, endpoint, null);
+    private String requestString() {
+        return requestString("GET");
     }
 
-    private String requestString(String method, String endpoint, String body) {
+    private String requestString(String method) {
         String resp;
         try {
-            URI uri = new URI(baseURL + endpoint);
+            URI uri = new URI(baseURL + "/game");
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
 
@@ -155,11 +149,11 @@ public class ServerFacade {
                 http.addRequestProperty("authorization", authToken);
             }
 
-            if (!Objects.equals(body, null)) {
+            if (!Objects.equals(null, null)) {
                 http.setDoOutput(true);
                 http.addRequestProperty("Content-Type", "application/json");
                 try (var outputStream = http.getOutputStream()) {
-                    outputStream.write(body.getBytes());
+                    outputStream.write(((String) null).getBytes());
                 }
             }
 

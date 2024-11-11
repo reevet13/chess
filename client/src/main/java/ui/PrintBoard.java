@@ -61,14 +61,12 @@ public class PrintBoard {
     }
 
     private String startingRow(boolean reversed) {
-        StringBuilder output = new StringBuilder();
-        output.append(SET_BG_COLOR_BLACK);
-        output.append(SET_TEXT_COLOR_BLUE);
-        output.append(!reversed ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ");
-        output.append(RESET_BG_COLOR);
-        output.append(RESET_TEXT_COLOR);
-        output.append("\n");
-        return output.toString();
+        return SET_BG_COLOR_BLACK +
+                SET_TEXT_COLOR_BLUE +
+                (!reversed ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ") +
+                RESET_BG_COLOR +
+                RESET_TEXT_COLOR +
+                "\n";
     }
 
     private String boardRow(int row, boolean reversed, ChessPosition startingSquare, HashSet<ChessPosition> highlightedSquares) {
