@@ -46,12 +46,11 @@ public class PostloginREPL {
                     }
                     if (server.joinGame(Integer.parseInt(input[1]), input[2])) {
                         out.println("You have joined the game");
-                        break;
                     } else {
                         out.println("Game does not exist or color taken");
                         printJoin();
-                        break;
                     }
+                    break;
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();
