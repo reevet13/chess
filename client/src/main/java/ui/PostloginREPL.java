@@ -85,12 +85,17 @@ public class PostloginREPL {
             printJoin();
             return;
         }
-        GameData joinGame = findGameById(Integer.parseInt(input[1]));
-        if (joinGame != null) {
+        try {
+            int gamePosition = Integer.parseInt(input[1]) - 1;
+            if (gamePosition < 0 || gamePosition >= games.size()) {
+                out.println("Invalid game position");
+                return;
+            }
+
+            GameData joinGame = games.get(gamePosition);
             joinGame(input[2].toUpperCase(), joinGame);
-        } else {
-            out.println("Game does not exist");
-            printJoin();
+        } catch (NumberFormatException e) {
+            out.println("Invalid game position. Please enter a valid number.");
         }
     }
 
@@ -100,21 +105,20 @@ public class PostloginREPL {
             printObserve();
             return;
         }
-        GameData observeGame = findGameById(Integer.parseInt(input[1]));
-        if (observeGame != null) {
+        try {
+            int gamePosition = Integer.parseInt(input[1]) - 1; // Convert to zero-based index
+            if (gamePosition < 0 || gamePosition >= games.size()) {
+                out.println("Invalid game position");
+                return;
+            }
+
+            GameData observeGame = games.get(gamePosition);
             observeGame(observeGame);
-        } else {
-            out.println("Game does not exist");
-            printObserve();
+        } catch (NumberFormatException e) {
+            out.println("Invalid game position. Please enter a valid number.");
         }
     }
 
-    private GameData findGameById(int gameId) {
-        return games.stream()
-                .filter(game -> game.gameID() == gameId)
-                .findFirst()
-                .orElse(null);
-    }
 
     private void joinGame(String color, GameData game) {
         if ((color.equals("WHITE") && game.whiteUsername() != null) || (color.equals("BLACK") && game.blackUsername() != null)) {
