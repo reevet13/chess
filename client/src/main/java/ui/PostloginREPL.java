@@ -28,87 +28,30 @@ public class PostloginREPL {
         while (loggedIn) {
             refreshGames();
             String[] input = getUserInput();
-            switch (input[0]) {
+            String command = input[0];
+
+            switch (command) {
                 case "quit":
                     return;
                 case "help":
                     printHelpMenu();
                     break;
                 case "logout":
-                    server.logout();
+                    handleLogout();
                     loggedIn = false;
                     break;
                 case "list":
-                    refreshGames();
-                    printGames();
+                    listGames();
                     break;
                 case "create":
-                    if (input.length != 2) {
-                        out.println("Please provide a name");
-                        printCreate();
-                        break;
-                    }
-                    int gameID = server.createGame(input[1]);
-                    refreshGames();
-                    out.printf("Created game, ID: %d%n", gameID);
+                    handleCreateGame(input);
                     break;
                 case "join":
-                    if (input.length != 3) {
-                        out.println("Please provide a game ID and color choice");
-                        printJoin();
-                        break;
-                    }
-                    GameData joinGame = games.stream()
-                            .filter(game -> game.gameID() == Integer.parseInt(input[1])) // Match by gameID
-                            .findFirst()
-                            .orElse(null);
-                    if (joinGame != null) {
-                        String color = input[2].toUpperCase();
-                        if (color.equals("WHITE") && joinGame.whiteUsername() != null) {
-                            out.println("The WHITE color is already taken.");
-                        } else if (color.equals("BLACK") && joinGame.blackUsername() != null) {
-                            out.println("The BLACK color is already taken.");
-                        } else {
-                            if (server.joinGame(joinGame.gameID(), color)) {
-                                out.println("You have joined the game");
-                                new Printer(joinGame.game().getBoard()).printBoard();
-                                refreshGames();
-                                break;
-                            } else {
-                                out.println("Color is already taken or game is full");
-                            }
-                        }
-
-                    } else {
-                        out.println("Game does not exist");
-                        printJoin();
-                        break;
-                    }
+                    handleJoinGame(input);
                     break;
                 case "observe":
-                    if (input.length != 2) {
-                        out.println("Please provide a game ID");
-                        printObserve();
-                        break;
-                    }
-                    GameData observeGame = games.stream()
-                            .filter(game -> game.gameID() == Integer.parseInt(input[1])) // Find game by gameID
-                            .findFirst()
-                            .orElse(null);
-                    if (observeGame == null) {
-                        out.println("Game does not exist");
-                        printJoin();
-                        break;
-                    }
-                    if (server.joinGame(observeGame.gameID(), null)) {
-                        out.println("You have joined the game as an observer");
-                        new Printer(observeGame.game().getBoard()).printBoard();
-                        break;
-                    } else {
-                        out.println("Game does not exist");
-                        printObserve();
-                        break;
-                    }
+                    handleObserveGame(input);
+                    break;
                 default:
                     out.println("Command not recognized, please try again");
                     printHelpMenu();
@@ -118,6 +61,87 @@ public class PostloginREPL {
 
         PreloginREPL preloginREPL = new PreloginREPL(server);
         preloginREPL.run();
+    }
+
+    private void handleLogout() {
+        server.logout();
+        out.println("Logged out successfully.");
+    }
+
+    private void handleCreateGame(String[] input) {
+        if (input.length != 2) {
+            out.println("Please provide a name");
+            printCreate();
+            return;
+        }
+        int gameID = server.createGame(input[1]);
+        refreshGames();
+        out.printf("Created game, ID: %d%n", gameID);
+    }
+
+    private void handleJoinGame(String[] input) {
+        if (input.length != 3) {
+            out.println("Please provide a game ID and color choice");
+            printJoin();
+            return;
+        }
+        GameData joinGame = findGameById(Integer.parseInt(input[1]));
+        if (joinGame != null) {
+            joinGame(input[2].toUpperCase(), joinGame);
+        } else {
+            out.println("Game does not exist");
+            printJoin();
+        }
+    }
+
+    private void handleObserveGame(String[] input) {
+        if (input.length != 2) {
+            out.println("Please provide a game ID");
+            printObserve();
+            return;
+        }
+        GameData observeGame = findGameById(Integer.parseInt(input[1]));
+        if (observeGame != null) {
+            observeGame(observeGame);
+        } else {
+            out.println("Game does not exist");
+            printObserve();
+        }
+    }
+
+    private GameData findGameById(int gameId) {
+        return games.stream()
+                .filter(game -> game.gameID() == gameId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void joinGame(String color, GameData game) {
+        if ((color.equals("WHITE") && game.whiteUsername() != null) || (color.equals("BLACK") && game.blackUsername() != null)) {
+            out.println("The " + color + " color is already taken.");
+            return;
+        }
+        if (server.joinGame(game.gameID(), color)) {
+            out.println("You have joined the game");
+            new Printer(game.game().getBoard()).printBoard();
+            refreshGames();
+        } else {
+            out.println("Color is already taken or game is full");
+        }
+    }
+
+    private void observeGame(GameData game) {
+        if (server.joinGame(game.gameID(), null)) {
+            out.println("You have joined the game as an observer");
+            new Printer(game.game().getBoard()).printBoard();
+        } else {
+            out.println("Unable to observe the game.");
+        }
+    }
+
+    private void listGames() {
+        refreshGames();
+        printGames();
     }
 
     private String[] getUserInput() {
@@ -133,11 +157,11 @@ public class PostloginREPL {
     }
 
     private void printGames() {
-        for (int i = 1; i < games.size(); i++) {
-            GameData game = games.get(i - 1);
+        for (int i = 0; i < games.size(); i++) {
+            GameData game = games.get(i);
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-            out.printf("%d -- Game Name: %s  |  White: %s  |  Black: %s %n", i, game.gameName(), whiteUser, blackUser);
+            out.printf("%d -- Game Name: %s  |  White: %s  |  Black: %s %n", i + 1, game.gameName(), whiteUser, blackUser);
         }
     }
 
@@ -162,6 +186,4 @@ public class PostloginREPL {
     private void printObserve() {
         out.println("observe <ID> - observe a game");
     }
-
-
 }

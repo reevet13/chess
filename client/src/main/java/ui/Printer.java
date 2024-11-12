@@ -32,7 +32,9 @@ public class Printer {
             }
 
             output.append(startingRow(reversed));
-            if (j < 1) output.append("\n");
+            if (j < 1) {
+                output.append("\n");
+            }
 
             reversed = false;
         }
