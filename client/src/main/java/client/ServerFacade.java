@@ -35,7 +35,6 @@ public class ServerFacade {
         return true;
     }
 
-
     public boolean login(String username, String password) {
         var body = Map.of("username", username, "password", password);
         var jsonBody = new Gson().toJson(body);
@@ -48,7 +47,7 @@ public class ServerFacade {
     }
 
     public boolean logout() {
-        Map resp = request("DELETE", "/session");
+        Map resp = request("DELETE", "/session", null);
         if (resp.containsKey("Error")) {
             return false;
         }
@@ -68,12 +67,11 @@ public class ServerFacade {
     }
 
     public HashSet<GameData> listGames() {
-        String resp = requestString("GET", "/game");
+        String resp = requestString("GET", "/game", null);
         if (resp.contains("Error")) {
-            return HashSet.newHashSet(8);
+            return new HashSet<>(8); // returning an empty HashSet if there's an error
         }
         GamesList games = new Gson().fromJson(resp, GamesList.class);
-
         return games.games();
     }
 
@@ -89,98 +87,76 @@ public class ServerFacade {
         return !resp.containsKey("Error");
     }
 
-    private Map request (String method, String endpoint) {
-        return request(method, endpoint, null);
+    // Refactor common request logic
+    private <T> T sendRequest(String method, String endpoint, String body, ResponseHandler<T> responseHandler) {
+        try {
+            URI uri = new URI(baseURL + endpoint);
+            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+            http.setRequestMethod(method);
+
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
+
+            if (body != null) {
+                http.setDoOutput(true);
+                http.addRequestProperty("Content-Type", "application/json");
+                try (var outputStream = http.getOutputStream()) {
+                    outputStream.write(body.getBytes());
+                }
+            }
+
+            http.connect();
+
+            try {
+                if (http.getResponseCode() == 401) {
+                    return responseHandler.handleError("Error: 401");
+                }
+            } catch (IOException e) {
+                return responseHandler.handleError("Error: 401");
+            }
+
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+                return responseHandler.handleSuccess(inputStreamReader);
+            }
+
+        } catch (URISyntaxException | IOException e) {
+            return responseHandler.handleError("Error: " + e.getMessage());
+        }
     }
 
+    // Helper method for request which returns Map
     private Map request(String method, String endpoint, String body) {
-        Map respMap;
-        try {
-            URI uri = new URI(baseURL + endpoint);
-            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
-            http.setRequestMethod(method);
-
-            if (authToken != null) {
-                http.addRequestProperty("authorization", authToken);
+        return sendRequest(method, endpoint, body, new ResponseHandler<Map>() {
+            @Override
+            public Map handleSuccess(InputStreamReader reader) {
+                return new Gson().fromJson(reader, Map.class);
             }
 
-            if (!Objects.equals(body, null)) {
-                http.setDoOutput(true);
-                http.addRequestProperty("Content-Type", "application/json");
-                try (var outputStream = http.getOutputStream()) {
-                    outputStream.write(body.getBytes());
-                }
+            @Override
+            public Map handleError(String errorMessage) {
+                return Map.of("Error", errorMessage);
             }
-
-            http.connect();
-
-            try {
-                if (http.getResponseCode() == 401) {
-                    return Map.of("Error", 401);
-                }
-            } catch (IOException e) {
-                return Map.of("Error", 401);
-            }
-
-
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader inputStreamReader = new InputStreamReader(respBody);
-                respMap = new Gson().fromJson(inputStreamReader, Map.class);
-            }
-
-        } catch (URISyntaxException | IOException e) {
-            return Map.of("Error", e.getMessage());
-        }
-
-        return respMap;
+        });
     }
 
-    private String requestString(String method, String endpoint) {
-        return requestString(method, endpoint, null);
-    }
-
+    // Helper method for request which returns String
     private String requestString(String method, String endpoint, String body) {
-        String resp;
-        try {
-            URI uri = new URI(baseURL + endpoint);
-            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
-            http.setRequestMethod(method);
-
-            if (authToken != null) {
-                http.addRequestProperty("authorization", authToken);
+        return sendRequest(method, endpoint, body, new ResponseHandler<String>() {
+            @Override
+            public String handleSuccess(InputStreamReader reader) {
+                return readerToString(reader);
             }
 
-            if (!Objects.equals(body, null)) {
-                http.setDoOutput(true);
-                http.addRequestProperty("Content-Type", "application/json");
-                try (var outputStream = http.getOutputStream()) {
-                    outputStream.write(body.getBytes());
-                }
+            @Override
+            public String handleError(String errorMessage) {
+                return errorMessage;
             }
-
-            http.connect();
-
-            try {
-                if (http.getResponseCode() == 401) {
-                    return "Error: 401";
-                }
-            } catch (IOException e) {
-                return "Error: 401";
-            }
-
-
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader inputStreamReader = new InputStreamReader(respBody);
-                resp = readerToString(inputStreamReader);
-            }
-
-        } catch (URISyntaxException | IOException e) {
-            return String.format("Error: %s", e.getMessage());
-        }
-
-        return resp;
+        });
     }
 
+    // Utility method to convert InputStreamReader to String
     private String readerToString(InputStreamReader reader) {
         StringBuilder sb = new StringBuilder();
         try {
@@ -191,8 +167,12 @@ public class ServerFacade {
         } catch (IOException e) {
             return "";
         }
-
     }
 
+    // Define a response handler interface for flexibility
+    private interface ResponseHandler<T> {
+        T handleSuccess(InputStreamReader reader);
 
+        T handleError(String errorMessage);
+    }
 }
