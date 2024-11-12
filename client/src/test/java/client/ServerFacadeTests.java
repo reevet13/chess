@@ -1,7 +1,5 @@
 package client;
 
-import client.ServerFacade;
-import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -87,20 +85,16 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listGamesPositive(){
-        // Assuming a game is created beforehand via the facade or a test setup
-        facade.register("player1", "password", "email1");
-        facade.createGame("TestGame");
-
-        // Call listGames to retrieve games
-        String result = facade.listGames();
-
-        // Validate the response
-        assertNotNull(result);
-        assertTrue(result.contains("Game: TestGame"));
-        assertTrue(result.contains("Players: []"));
+    public void listGamesPositive() {
+        facade.register("username", "password", "email");
+        facade.createGame("gameName");
+        assertEquals(1, facade.listGames().size());
     }
 
+    @Test
+    public void listGamesNegative() {
+        assertEquals(facade.listGames(), HashSet.newHashSet(8));
+    }
 
     @Test
     public void joinGamePositive() {
@@ -114,16 +108,7 @@ public class ServerFacadeTests {
         facade.register("username", "password", "email");
         int id = facade.createGame("gameName");
         facade.joinGame(id, "WHITE");
-        assertTrue(facade.joinGame(id, "WHITE"));
-    }
-
-    @Test
-    public void listGamesNegative() {
-        String result = facade.listGames();
-
-        // Step 3: Assert that the method returns the expected failure message
-        assertNotNull(result);
-        assertTrue(result.contains("Failed to retrieve games list."));  // Expected message on failure
+        assertFalse(facade.joinGame(id, "WHITE"));
     }
 
 
