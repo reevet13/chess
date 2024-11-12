@@ -122,7 +122,7 @@ public class PostloginREPL {
             return;
         }
         if (server.joinGame(game.gameID(), color)) {
-            out.println("You have joined the game");
+            out.println("You have joined the game " + game.gameName());
             new Printer(game.game().getBoard()).printBoard();
             refreshGames();
         } else {
