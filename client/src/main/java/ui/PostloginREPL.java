@@ -24,8 +24,9 @@ public class PostloginREPL {
 
     public void run() {
         boolean loggedIn = true;
+        boolean inGame = false;
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
-        while (loggedIn) {
+        while (loggedIn && !inGame) {
             refreshGames();
             String[] input = getUserInput();
             String command = input[0];
@@ -80,18 +81,24 @@ public class PostloginREPL {
     }
 
     private void handleJoinGame(String[] input) {
-        if (input.length != 3) {
+        if (input.length != 3 || !input[1].matches("\\d") ||
+                !input[2].toUpperCase().matches("WHITE|BLACK")) {
             out.println("Please provide a game ID and color choice");
             printJoin();
             return;
         }
         try {
             int gamePosition = Integer.parseInt(input[1]) - 1;
-            if (gamePosition < 0 || gamePosition >= games.size()) {
-                out.println("Invalid game position");
+            if (games.isEmpty() || games.size() <= gamePosition) {
+                refreshGames();
+                if (games.isEmpty()) {
+                    out.println("Error: Create a game");
+                } else {
+                    out.println("Error: No game by this number");
+                    printGames();
+                }
                 return;
             }
-
             GameData joinGame = games.get(gamePosition);
             joinGame(input[2].toUpperCase(), joinGame);
         } catch (NumberFormatException e) {
@@ -121,14 +128,17 @@ public class PostloginREPL {
 
 
     private void joinGame(String color, GameData game) {
-        if ((color.equals("WHITE") && game.whiteUsername() != null) || (color.equals("BLACK") && game.blackUsername() != null)) {
+        if ((color.equals("WHITE") && game.whiteUsername() != null) ||
+            (color.equals("BLACK") && game.blackUsername() != null)) {
             out.println("The " + color + " color is already taken.");
             return;
         }
         if (server.joinGame(game.gameID(), color)) {
             out.println("You have joined the game " + game.gameName());
-            new Printer(game.game().getBoard()).printBoard();
-            refreshGames();
+            server.sendWSMessage("Test Join");
+            inGame = true;
+            GameplayREPL gameplayREPL = new GameplayREPL(server, game, color);
+            gameplayREPL.run();
         } else {
             out.println("Color is already taken or game is full");
         }
