@@ -135,12 +135,9 @@ public class PostloginREPL {
     }
 
     private void observeGame(GameData game) {
-        if (server.joinGame(game.gameID(), null)) {
-            out.println("You have joined the game as an observer");
-            new Printer(game.game().getBoard()).printBoard();
-        } else {
-            out.println("Unable to observe the game.");
-        }
+        out.println("You have joined the game as an observer");
+        new Printer(game.game().getBoard()).printBoard();
+
     }
 
     private void listGames() {

@@ -79,15 +79,15 @@ public class Printer {
     private String squareColor(int row, int column) {
         if (Math.ceilMod(row, 2) == 0) {
             if (Math.ceilMod(column, 2) == 0) {
-                return SET_BG_COLOR_LIGHT_GREY;
-            } else {
                 return SET_BG_COLOR_DARK_GREY;
+            } else {
+                return SET_BG_COLOR_LIGHT_GREY;
             }
         } else {
             if (Math.ceilMod(column, 2) == 0) {
-                return SET_BG_COLOR_DARK_GREY;
-            } else {
                 return SET_BG_COLOR_LIGHT_GREY;
+            } else {
+                return SET_BG_COLOR_DARK_GREY;
             }
         }
     }
