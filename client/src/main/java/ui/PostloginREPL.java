@@ -48,10 +48,10 @@ public class PostloginREPL {
                     handleCreateGame(input);
                     break;
                 case "join":
-                    handleJoinGame(input);
+                    inGame = handleJoinGame(input, inGame);
                     break;
                 case "observe":
-                    handleObserveGame(input);
+                    inGame = handleObserveGame(input, inGame);
                     break;
                 default:
                     out.println("Command not recognized, please try again");
@@ -59,9 +59,10 @@ public class PostloginREPL {
                     break;
             }
         }
-
-        PreloginREPL preloginREPL = new PreloginREPL(server);
-        preloginREPL.run();
+        if (!loggedIn) {
+            PreloginREPL preloginREPL = new PreloginREPL(server);
+            preloginREPL.run();
+        }
     }
 
     private void handleLogout() {
@@ -80,12 +81,12 @@ public class PostloginREPL {
         out.printf("Created game, ID: %d%n", gameID);
     }
 
-    private void handleJoinGame(String[] input) {
+    private boolean handleJoinGame(String[] input, boolean inGame) {
         if (input.length != 3 || !input[1].matches("\\d") ||
                 !input[2].toUpperCase().matches("WHITE|BLACK")) {
             out.println("Please provide a game ID and color choice");
             printJoin();
-            return;
+            return false;
         }
         try {
             int gamePosition = Integer.parseInt(input[1]) - 1;
@@ -97,41 +98,51 @@ public class PostloginREPL {
                     out.println("Error: No game by this number");
                     printGames();
                 }
-                return;
+                return inGame;
             }
             GameData joinGame = games.get(gamePosition);
-            joinGame(input[2].toUpperCase(), joinGame);
+            return joinGame(input[2].toUpperCase(), joinGame, inGame);
         } catch (NumberFormatException e) {
             out.println("Invalid game position. Please enter a valid number.");
+            return inGame;
         }
     }
 
-    private void handleObserveGame(String[] input) {
-        if (input.length != 2) {
+    private boolean handleObserveGame(String[] input, boolean inGame) {
+        if (input.length != 2 || !input[1].matches("\\d")) {
             out.println("Please provide a game ID");
             printObserve();
-            return;
+            return inGame;
         }
         try {
-            int gamePosition = Integer.parseInt(input[1]) - 1; // Convert to zero-based index
+            int gamePosition = Integer.parseInt(input[1]) - 1;// Convert to zero-based index
             if (gamePosition < 0 || gamePosition >= games.size()) {
-                out.println("Invalid game position");
-                return;
+                refreshGames();
+                if (games.isEmpty()){
+                    out.println("Error: Create game");
+                    return inGame;
+                }
+                if (games.size() <= gamePosition){
+                    out.println("Invalid game position");
+                    printGames();
+                    return inGame;
+                }
             }
 
             GameData observeGame = games.get(gamePosition);
-            observeGame(observeGame);
+            return observeGame(observeGame, inGame);
         } catch (NumberFormatException e) {
             out.println("Invalid game position. Please enter a valid number.");
+            return inGame;
         }
     }
 
 
-    private void joinGame(String color, GameData game) {
+    private boolean joinGame(String color, GameData game, boolean inGame) {
         if ((color.equals("WHITE") && game.whiteUsername() != null) ||
             (color.equals("BLACK") && game.blackUsername() != null)) {
             out.println("The " + color + " color is already taken.");
-            return;
+            return inGame;
         }
         if (server.joinGame(game.gameID(), color)) {
             out.println("You have joined the game " + game.gameName());
@@ -139,15 +150,25 @@ public class PostloginREPL {
             inGame = true;
             GameplayREPL gameplayREPL = new GameplayREPL(server, game, color);
             gameplayREPL.run();
+            return inGame;
         } else {
             out.println("Color is already taken or game is full");
+            return inGame;
         }
     }
 
-    private void observeGame(GameData game) {
-        out.println("You have joined the game as an observer");
-        new Printer(game.game().getBoard()).printBoard();
-
+    private boolean observeGame(GameData game, boolean inGame) {
+        if (server.joinGame(game.gameID(), null)) {
+            out.println("You have joined the game as an observer");
+            inGame = true;
+            GameplayREPL gameplayREPL = new GameplayREPL(server, game, null);
+            gameplayREPL.run();
+            return inGame;
+        } else {
+            out.println("Game does not exist");
+            printObserve();
+            return inGame;
+        }
     }
 
     private void listGames() {
