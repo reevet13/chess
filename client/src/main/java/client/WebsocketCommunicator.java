@@ -1,11 +1,22 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import ui.Printer;
+import ui.GameplayREPL;
+import webSocketMessages.serverMessages.Error;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
+
+import static ui.EscapeSequences.ERASE_LINE;
+import static ui.EscapeSequences.moveCursorToLocation;
 
 public class WebsocketCommunicator extends Endpoint{
     Session session;
@@ -16,7 +27,12 @@ public class WebsocketCommunicator extends Endpoint{
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
-            this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    handleMessage(message);
+                }
+            });
         } catch (DeploymentException | IOException | URISyntaxException e) {
             throw new Exception();
         }
@@ -26,7 +42,26 @@ public class WebsocketCommunicator extends Endpoint{
     public void onOpen(Session session, EndpointConfig config) {}
 
     public void handleMessage(String message) {
-        System.out.println(message);
+        if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
+            Notification notification = new Gson().fromJson(message, Notification.class);
+            printNotification(notif.getMessage());
+        }
+        else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
+            LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+            printMoveMade(loadGame.getGame());
+        }
+    }
+
+    private void printNotification(String message) {
+        System.out.print(ERASE_LINE + '\r');
+        System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+    }
+
+    private void printMoveMade(ChessGame game) {
+        System.out.print(ERASE_LINE + "\r\nA move has been made\n");
+        GameplayREPL.printer.updateGame(game);
+        GameplayREPL.printer.printBoard(GameplayREPL.color, null);
+        System.out.print("[IN-GAME] >>> ");
     }
 
     public void sendMessage(String message) {
