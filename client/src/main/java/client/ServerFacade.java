@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import model.GameData;
 import model.GamesList;
 
@@ -53,14 +55,56 @@ public class ServerFacade {
     }
 
     public HashSet<GameData> listGames() {
-        return http.listGame();
+        return http.listGames();
     }
 
     public boolean joinGame(int gameId, String playerColor) {
         return http.joinGame(gameId, playerColor);
     }
 
+    public void connectWS() {
+        try {
+            ws = new WebsocketCommunicator(serverDomain);
+        } catch (Exception e) {
+            System.out.println("Failed to make connection with server");
+        }
+    }
+
+    public void closeWS() {
+        try {
+            ws.session.close();
+            ws = null;
+        } catch (IOException e) {
+            System.out.println("Failed to close connection with server");
+        }
+    }
+
     public void sendWSMessage(String message) {
         ws.sendMessage(message);
+    }
+
+    public void sendCommand(UserGameCommand command) {
+        String message = new Gson().toJson(command);
+        ws.sendMessage(message);
+    }
+
+    public void joinPlayer(int gameID, ChessGame.TeamColor color) {
+        sendCommand(new JoinPlayer(authToken, gameID, color));
+    }
+
+    public void joinObserver(int gameID) {
+        sendCommand(new JoinObserver(authToken, gameID));
+    }
+
+    public void makeMove(int gameID, ChessMove move) {
+        sendCommand(new MakeMove(authToken, gameID, move));
+    }
+
+    public void leave(int gameID) {
+        sendCommand(new Leave(authToken, gameID));
+    }
+
+    public void resign(int gameID) {
+        sendCommand(new Resign(authToken, gameID));
     }
 }
