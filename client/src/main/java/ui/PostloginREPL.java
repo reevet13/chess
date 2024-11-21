@@ -146,8 +146,9 @@ public class PostloginREPL {
         }
         if (server.joinGame(game.gameID(), color)) {
             out.println("You have joined the game " + game.gameName());
-            server.sendWSMessage("Test Join");
             inGame = true;
+            server.connectWS();
+            server.joinPlayer(joinGame.gameID(), color);
             GameplayREPL gameplayREPL = new GameplayREPL(server, game, color);
             gameplayREPL.run();
             return inGame;
@@ -161,6 +162,8 @@ public class PostloginREPL {
         if (server.joinGame(game.gameID(), null)) {
             out.println("You have joined the game as an observer");
             inGame = true;
+            server.connectWS();
+            server.joinObserver(game.gameID());
             GameplayREPL gameplayREPL = new GameplayREPL(server, game, null);
             gameplayREPL.run();
             return inGame;

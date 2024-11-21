@@ -1,8 +1,11 @@
 package server;
 
 import service.Service;
+import org.eclipse.jetty.websocket.api.Session;
 import dataaccess.*;
 import spark.*;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
@@ -12,6 +15,8 @@ public class Server {
 
     static Service service;
     Handler handler;
+
+    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
 

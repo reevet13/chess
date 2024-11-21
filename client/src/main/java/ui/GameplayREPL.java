@@ -128,4 +128,6 @@ public class GameplayREPL {
 
     private void makeMove(ChessPosition start, ChessPosition end) {
     }
+
+    private void confirmResign() {}
 }
