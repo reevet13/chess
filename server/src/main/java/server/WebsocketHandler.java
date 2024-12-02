@@ -19,9 +19,7 @@ import websocket.messages.ServerMessage;
 import websocket.commands.*;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WebsocketHandler {
@@ -155,7 +153,7 @@ public class WebsocketHandler {
                 }
                 broadcastMessage(session, notif);
 
-                Server.gameService.updateGame(auth.authToken(), game);
+                Server.service.updateGame(auth.authToken(), game);
 
                 LoadGame load = new LoadGame(game.game());
                 broadcastMessage(session, load, true);
@@ -176,7 +174,7 @@ public class WebsocketHandler {
 
     private void handleLeave(Session session, Leave command) throws IOException {
         try {
-            AuthData auth = Server.userService.getAuth(command.getAuthString());
+            AuthData auth = Server.service.getAuth(command.getAuthString());
 
             Notification notif = new Notification("%s has left the game".formatted(auth.username()));
             broadcastMessage(session, notif);
@@ -189,8 +187,8 @@ public class WebsocketHandler {
 
     private void handleResign(Session session, Resign command) throws IOException {
         try {
-            AuthData auth = Server.userService.getAuth(command.getAuthString());
-            GameData game = Server.gameService.getGameData(command.getAuthString(), command.getGameID());
+            AuthData auth = Server.service.getAuth(command.getAuthString());
+            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
             ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
 
             String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
@@ -206,7 +204,7 @@ public class WebsocketHandler {
             }
 
             game.game().setGameOver(true);
-            Server.gameService.updateGame(auth.authToken(), game);
+            Server.service.updateGame(auth.authToken(), game);
             Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), opponentUsername));
             broadcastMessage(session, notif, true);
         } catch (UnauthorizedException e) {

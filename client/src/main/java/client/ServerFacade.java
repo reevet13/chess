@@ -5,8 +5,8 @@ import chess.ChessMove;
 import model.GameData;
 
 import com.google.gson.Gson;
-import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.*;
+import websocket.messages.ServerMessage;
+import websocket.commands.*;
 
 import java.io.IOException;
 import java.util.*;

@@ -4,10 +4,10 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import ui.Printer;
 import ui.GameplayREPL;
-import webSocketMessages.serverMessages.Error;
-import webSocketMessages.serverMessages.LoadGame;
-import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.serverMessages.ServerMessage;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class WebsocketCommunicator extends Endpoint{
     public void handleMessage(String message) {
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             Notification notification = new Gson().fromJson(message, Notification.class);
-            printNotification(notif.getMessage());
+            printNotification(notification.getMessage());
         }
         else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
