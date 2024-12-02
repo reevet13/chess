@@ -54,16 +54,32 @@ public class Service {
         authDAO.deleteAuth(authToken);
     }
 
-    public int createGame(String authToken, String gameName) throws UnauthorizedException, BadRequestException{
+    public void updateGame(String authToken, GameData gameData) throws UnauthorizedException, BadRequestException {
         try {
             authDAO.getAuth(authToken);
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             throw new UnauthorizedException();
         }
+
+        try {
+            gameDAO.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    public int createGame(String authToken, String gameName) throws UnauthorizedException, BadRequestException {
+        try {
+            authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
+
         int gameID;
-        do {
-            gameID = ThreadLocalRandom.current().nextInt(1,10000);
+        do { // Get random gameIDs until the gameID is not already in use
+            gameID = ThreadLocalRandom.current().nextInt(1, 10000);
         } while (gameDAO.gameExists(gameID));
+
         try {
             ChessGame game = new ChessGame();
             ChessBoard board = new ChessBoard();
@@ -73,10 +89,11 @@ public class Service {
         } catch (DataAccessException e) {
             throw new BadRequestException(e.getMessage());
         }
+
         return gameID;
     }
 
-    public boolean joinGame(String authToken, int gameID, String color) throws BadRequestException, UnauthorizedException {
+    public boolean joinGame(String authToken, int gameID, String color) throws UnauthorizedException, BadRequestException {
         AuthData authData;
         GameData gameData;
         try {
@@ -84,34 +101,26 @@ public class Service {
         } catch (DataAccessException e) {
             throw new UnauthorizedException();
         }
+
         try {
             gameData = gameDAO.getGame(gameID);
         } catch (DataAccessException e) {
             throw new BadRequestException(e.getMessage());
         }
 
-        String whiteUsername = gameData.whiteUsername();
-        String blackUsername = gameData.blackUsername();
+        String whiteUser = gameData.whiteUsername();
+        String blackUser = gameData.blackUsername();
 
         if (Objects.equals(color, "WHITE")) {
-            if(whiteUsername != null && !whiteUsername.equals(authData.username())) {
-                return false;
-            }
-            else {
-                whiteUsername = authData.username();
-            }
+            if (whiteUser != null && !whiteUser.equals(authData.username())) return false; // Spot taken by someone else
+            else whiteUser = authData.username();
         } else if (Objects.equals(color, "BLACK")) {
-            if(blackUsername != null && !blackUsername.equals(authData.username())) {
-                return false;
-            }
-            else {
-                blackUsername = authData.username();
-            }
-        } else {
-            throw new BadRequestException("%s is not black or white".formatted(color));
-        }
+            if (blackUser != null && !blackUser.equals(authData.username())) return false; // Spot taken by someone else
+            else blackUser = authData.username();
+        } else if (color != null) throw new BadRequestException("%s is not a valid team color".formatted(color));
+
         try {
-            gameDAO.updateGame(new GameData(gameID, whiteUsername, blackUsername, gameData.gameName(), gameData.game()));
+            gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
         } catch (DataAccessException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -127,10 +136,32 @@ public class Service {
         return gameDAO.listGames();
     }
 
+    public GameData getGameData(String authToken, int gameID) throws UnauthorizedException, BadRequestException {
+        try {
+            authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
+
+        try {
+            return gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
     public void clear() {
         userDAO.clear();
         authDAO.clear();
         gameDAO.clear();
+    }
+
+    public AuthData getAuth(String authToken) throws UnauthorizedException {
+        try {
+            return authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
     }
 
     public AuthData authTokenGenerator(UserData userData) throws DataAccessException {
