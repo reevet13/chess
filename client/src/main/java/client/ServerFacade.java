@@ -18,7 +18,7 @@ public class ServerFacade {
     WebsocketCommunicator ws;
     String serverDomain;
 
-    public ServerFacade() throws Exception{
+    public ServerFacade() throws Exception {
         this("localhost:8080");
     }
 
@@ -55,10 +55,6 @@ public class ServerFacade {
         return http.listGames();
     }
 
-    public boolean joinGame(int gameId, String playerColor) {
-        return http.joinGame(gameId, playerColor);
-    }
-
     public void connectWS() {
         try {
             ws = new WebsocketCommunicator(serverDomain);
@@ -85,14 +81,15 @@ public class ServerFacade {
         ws.sendMessage(message);
     }
 
-    public void connect(int gameID) { sendCommand(new Connect(authToken, gameID));}
-
-    public void joinPlayer(int gameID, ChessGame.TeamColor color) {
-        sendCommand(new JoinPlayer(authToken, gameID, color));
-    }
-
-    public void joinObserver(int gameID) {
-        sendCommand(new JoinObserver(authToken, gameID));
+    /**
+     * Connect to a game as either a player or observer.
+     *
+     * @param gameID    The ID of the game to connect to.
+     * @param isObserver True if connecting as an observer, false if connecting as a player.
+     * @param color      The color of the player (white/black) if joining as a player; null if observer.
+     */
+    public void connect(int gameID, boolean isObserver, String color) {
+        sendCommand(new Connect(authToken, gameID, isObserver, color));
     }
 
     public void makeMove(int gameID, ChessMove move) {
@@ -107,3 +104,4 @@ public class ServerFacade {
         sendCommand(new Resign(authToken, gameID));
     }
 }
+
