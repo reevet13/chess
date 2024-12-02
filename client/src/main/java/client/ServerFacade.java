@@ -51,6 +51,10 @@ public class ServerFacade {
         return http.createGame(gameName);
     }
 
+    public boolean joinGame(int gameID, String color) {
+        return http.joinGame(gameID, color);
+    }
+
     public HashSet<GameData> listGames() {
         return http.listGames();
     }
@@ -58,28 +62,17 @@ public class ServerFacade {
     public void connectWS() {
         try {
             ws = new WebsocketCommunicator(serverDomain);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Failed to make connection with server");
         }
-    }
-
-    public void closeWS() {
-        try {
-            ws.session.close();
-            ws = null;
-        } catch (IOException e) {
-            System.out.println("Failed to close connection with server");
-        }
-    }
-
-    public void sendWSMessage(String message) {
-        ws.sendMessage(message);
     }
 
     public void sendCommand(UserGameCommand command) {
         String message = new Gson().toJson(command);
         ws.sendMessage(message);
     }
+
 
     /**
      * Connect to a game as either a player or observer.

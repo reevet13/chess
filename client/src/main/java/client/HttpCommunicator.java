@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.GamesList;
 
+import javax.websocket.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,8 +17,9 @@ import java.util.Objects;
 
 public class HttpCommunicator {
 
-    String baseURL;
-    ServerFacade facade;
+    private String baseURL;
+    private ServerFacade facade;
+    private Session webSocketSession;
 
     public HttpCommunicator(ServerFacade facade, String serverDomain) {
         baseURL = "http://" + serverDomain;
@@ -47,6 +49,7 @@ public class HttpCommunicator {
     }
 
     public boolean logout() {
+        disconnectWebSocket();
         Map res = request("DELETE", "/session");
         if (res.containsKey("Error")) {
             return false;
@@ -69,7 +72,7 @@ public class HttpCommunicator {
     public HashSet<GameData> listGames() {
         String res = requestString("GET", "/game");
         if (res.contains("Error")) {
-            return HashSet.newHashSet(8);
+            return new HashSet<>(8);
         }
         GamesList games = new Gson().fromJson(res, GamesList.class);
         return games.games();
@@ -84,10 +87,14 @@ public class HttpCommunicator {
         }
         var jsonBody = new Gson().toJson(body);
         Map res = request("PUT", "/game", jsonBody);
-        return !res.containsKey("Error");
+        if (!res.containsKey("Error")) {
+            connectWebSocket(gameId);
+            return true;
+        }
+        return false;
     }
 
-    private Map request (String method, String endpoint) {
+    private Map request(String method, String endpoint) {
         return request(method, endpoint, null);
     }
 
@@ -146,7 +153,7 @@ public class HttpCommunicator {
 
             if (!Objects.equals(body, null)) {
                 http.setDoOutput(true);
-                http.addRequestProperty("Content-Type", "applilcation/json");
+                http.addRequestProperty("Content-Type", "application/json");
                 try (var outputStream = http.getOutputStream()) {
                     outputStream.write(body.getBytes());
                 }
@@ -182,6 +189,50 @@ public class HttpCommunicator {
         } catch (IOException e) {
             return "";
         }
+    }
 
+    // WebSocket connection methods
+    private void connectWebSocket(int gameId) {
+        try {
+            String wsURL = baseURL.replace("http", "ws") + "/game/" + gameId + "/connect";
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            webSocketSession = container.connectToServer(new WebSocketEndpoint(), new URI(wsURL));
+        } catch (Exception e) {
+            System.err.println("WebSocket connection failed: " + e.getMessage());
+        }
+    }
+
+    private void disconnectWebSocket() {
+        try {
+            if (webSocketSession != null && webSocketSession.isOpen()) {
+                webSocketSession.close();
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing WebSocket: " + e.getMessage());
+        }
+    }
+
+    @ClientEndpoint
+    public class WebSocketEndpoint {
+        @OnOpen
+        public void onOpen(Session session) {
+            System.out.println("WebSocket connected: " + session.getId());
+        }
+
+        @OnMessage
+        public void onMessage(String message) {
+            System.out.println("Received WebSocket message: " + message);
+            // Process WebSocket messages
+        }
+
+        @OnClose
+        public void onClose(Session session, CloseReason reason) {
+            System.out.println("WebSocket closed: " + reason);
+        }
+
+        @OnError
+        public void onError(Session session, Throwable error) {
+            System.err.println("WebSocket error: " + error.getMessage());
+        }
     }
 }
