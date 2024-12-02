@@ -2,14 +2,15 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.ServerFacade;
 import model.GameData;
-import webSocketMessages.serverMessages.Error;
-import webSocketMessages.serverMessages.LoadGame;
-import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.MakeMove;
+import websocket.messages.Error;
+import websocket.messages.LoadGame;
+import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
+import websocket.commands.MakeMove;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,26 +22,23 @@ import static ui.EscapeSequences.*;
 public class GameplayREPL {
 
     ServerFacade server;
-    public static Printer printer;
+    public static Printer boardPrinter;
     ChessGame game;
     int gameID;
     public static ChessGame.TeamColor color;
-
-    boolean notificationPending = false;
 
     public GameplayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
         this.game = gameData.game();
         this.gameID = gameData.gameID();
-        this.color = color;
+        GameplayREPL.color = color;
 
-        this.printer = new Printer(game);
+        boardPrinter = new Printer(game);
     }
 
     public void run() {
         boolean inGame = true;
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
-        printer.printBoard(color, null);
         while (inGame) {
             String[] input = getUserInput();
             switch (input[0]) {
@@ -55,40 +53,30 @@ public class GameplayREPL {
                     server.leave(gameID);
                     break;
                 case "move":
-                    if (input.length == 3 && input[1].matches("[a-h][1-8]") &&
-                            input[2].matches("[a-h][1-8]")) {
-                        ChessPosition start = new ChessPosition(input[1].charAt(1) - '0',
-                                input[1].charAt(0) - ('a'-1));
-                        ChessPosition end = new ChessPosition(input[2].charAt(1) - '0',
-                                input[2].charAt(0) - ('a'-1));
-                        server.makeMove(gameID, new ChessMove(start, end, null));
-                    } else {
-                        out.println("Provide correct coordinates (ex: 'a1 b3')");
-                        printMakeMove();
-                    }
+                    handleMakeMove(input);
                     break;
                 case "resign":
-                    out.println("Are you sure you want to resign? (yes/no)");
+                    out.println("Are you sure you want to forfeit? (yes/no)");
                     String[] confirmation = getUserInput();
                     if (confirmation.length == 1 && confirmation[0].equalsIgnoreCase("yes")) {
                         server.resign(gameID);
-                    } else if (confirmation.length ==1 && confirmation [0].equalsIgnoreCase("no")){
+                    }
+                    else {
                         out.println("Resignation cancelled");
-                    } else {
-                        out.println("yes or no");
                     }
                     break;
-                case "highliht":
+                case "highlight":
                     if (input.length == 2 && input[1].matches("[a-h][1-8]")) {
-                        ChessPosition pos = new ChessPosition(input[1].charAt(1) - '0',
-                                input[1].charAt(0) - ('a' - 1));
-                        printer.printBoard(color, pos);
-                    } else {
-                        out.print("Please provoide a coordinate (ex: 'a1')");
+                        ChessPosition position = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+                        boardPrinter.printBoard(color, position);
+                    }
+                    else {
+                        out.println("Please provide a coordinate (ex: 'c3')");
                         printHighlight();
                     }
+                    break;
                 default:
-                    out.println("Command not recognized, try again");
+                    out.println("Command not recognized, please try again");
                     printHelpMenu();
                     break;
             }
@@ -115,7 +103,7 @@ public class GameplayREPL {
     }
 
     private void printMakeMove() {
-        out.println("move <from> <to> - make a move");
+        out.println("move <from> <to> <promotion_piece> - make a move (Promotion piece should only be used when a move will promote a pawn)");
     }
 
     private void printHighlight() {
@@ -123,11 +111,40 @@ public class GameplayREPL {
     }
 
     private void redraw() {
-        printer.printBoard(color, null);
+        boardPrinter.printBoard(color, null);
     }
 
-    private void makeMove(ChessPosition start, ChessPosition end) {
+    private void handleMakeMove(String[] input) {
+        if (input.length >= 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
+            ChessPosition from = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+            ChessPosition to = new ChessPosition(input[2].charAt(1) - '0',input[2].charAt(0) - ('a'-1));
+
+            ChessPiece.PieceType promotion = null;
+            if (input.length == 4) {
+                promotion = getPieceType(input[3]);
+                if (promotion == null) { // If it was improperly typed by the user
+                    out.println("Please provide proper promotion piece name (ex: 'knight')");
+                    printMakeMove();
+                }
+            }
+
+            server.makeMove(gameID, new ChessMove(from, to, promotion));
+        }
+        else {
+            out.println("Please provide a to and from coordinate (ex: 'c3 d5')");
+            printMakeMove();
+        }
     }
 
-    private void confirmResign() {}
+    public ChessPiece.PieceType getPieceType(String name) {
+        return switch (name.toUpperCase()) {
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "PAWN" -> ChessPiece.PieceType.PAWN;
+            default -> null;
+        };
+    }
+
 }
