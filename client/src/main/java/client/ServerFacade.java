@@ -85,6 +85,8 @@ public class ServerFacade {
         ws.sendMessage(message);
     }
 
+    public void connect(int gameID) { sendCommand(new Connect(authToken, gameID));}
+
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
         sendCommand(new JoinPlayer(authToken, gameID, color));
     }

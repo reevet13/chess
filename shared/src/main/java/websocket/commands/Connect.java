@@ -1,17 +1,17 @@
 package websocket.commands;
 
-import chess.ChessGame;
-
 public class Connect extends UserGameCommand {
 
-    int gameID; // ID of the game the client is connecting to
-    boolean isObserver; // Indicates if the client is joining as an observer
+    private int gameID;
+    private boolean isObserver;
+    private String color; // Optional, for player-specific data
 
-    public Connect(String authToken, int gameID, boolean isObserver) {
-        super(authToken);
-        this.commandType = CommandType.CONNECT; // Define CONNECT as a command type
+    public Connect(String authString, int gameID, boolean isObserver, String color) {
+        super(authString);
+        this.commandType = CommandType.CONNECT;
         this.gameID = gameID;
         this.isObserver = isObserver;
+        this.color = color; // Can be null if joining as observer
     }
 
     public int getGameID() {
@@ -21,5 +21,8 @@ public class Connect extends UserGameCommand {
     public boolean isObserver() {
         return isObserver;
     }
-}
 
+    public String getColor() {
+        return color;
+    }
+}

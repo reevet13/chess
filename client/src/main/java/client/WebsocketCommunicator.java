@@ -59,8 +59,8 @@ public class WebsocketCommunicator extends Endpoint{
 
     private void printMoveMade(ChessGame game) {
         System.out.print(ERASE_LINE + "\r\nA move has been made\n");
-        GameplayREPL.printer.updateGame(game);
-        GameplayREPL.printer.printBoard(GameplayREPL.color, null);
+        GameplayREPL.boardPrinter.updateGame(game);
+        GameplayREPL.boardPrinter.printBoard(GameplayREPL.color, null);
         System.out.print("[IN-GAME] >>> ");
     }
 
