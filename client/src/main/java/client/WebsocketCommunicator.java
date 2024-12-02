@@ -18,7 +18,8 @@ import java.util.LinkedList;
 import static ui.EscapeSequences.ERASE_LINE;
 import static ui.EscapeSequences.moveCursorToLocation;
 
-public class WebsocketCommunicator extends Endpoint{
+public class WebsocketCommunicator extends Endpoint {
+
     Session session;
 
     public WebsocketCommunicator(String serverDomain) throws Exception {
@@ -27,28 +28,37 @@ public class WebsocketCommunicator extends Endpoint{
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
+
+            //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
                     handleMessage(message);
                 }
             });
-        } catch (DeploymentException | IOException | URISyntaxException e) {
+
+        } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new Exception();
         }
+
     }
 
     @Override
-    public void onOpen(Session session, EndpointConfig config) {}
+    public void onOpen(Session session, EndpointConfig config) {
+    }
 
-    public void handleMessage(String message) {
+    private void handleMessage(String message) {
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
-            Notification notification = new Gson().fromJson(message, Notification.class);
-            printNotification(notification.getMessage());
+            Notification notif = new Gson().fromJson(message, Notification.class);
+            printNotification(notif.getMessage());
+        }
+        else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
+            Error error = new Gson().fromJson(message, Error.class);
+            printNotification(error.getMessage());
         }
         else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
-            printMoveMade(loadGame.getGame());
+            printLoadedGame(loadGame.getGame());
         }
     }
 
@@ -57,8 +67,8 @@ public class WebsocketCommunicator extends Endpoint{
         System.out.printf("\n%s\n[IN-GAME] >>> ", message);
     }
 
-    private void printMoveMade(ChessGame game) {
-        System.out.print(ERASE_LINE + "\r\nA move has been made\n");
+    private void printLoadedGame(ChessGame game) {
+        System.out.print(ERASE_LINE + "\r\n");
         GameplayREPL.boardPrinter.updateGame(game);
         GameplayREPL.boardPrinter.printBoard(GameplayREPL.color, null);
         System.out.print("[IN-GAME] >>> ");

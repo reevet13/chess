@@ -114,7 +114,8 @@ public class PostloginREPL {
         int gameNum = Integer.parseInt(input[1]);
         if (validateGameID(gameNum)) {
             GameData joinGame = games.get(gameNum);
-            String color = input[2].toUpperCase();
+            ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(input[2].toUpperCase());
+
 
             server.connectWS();
             server.connect(joinGame.gameID(), false, color); // Connect as a player
@@ -122,7 +123,7 @@ public class PostloginREPL {
             out.printf("You have joined game '%s' as %s%n", joinGame.gameName(), color);
             inGame = true;
 
-            GameplayREPL gameplayREPL = new GameplayREPL(server, joinGame, ChessGame.TeamColor.valueOf(color));
+            GameplayREPL gameplayREPL = new GameplayREPL(server, joinGame, color);
             gameplayREPL.run();
         }
     }

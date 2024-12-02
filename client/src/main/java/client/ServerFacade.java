@@ -2,10 +2,9 @@ package client;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import com.google.gson.Gson;
 import model.GameData;
 
-import com.google.gson.Gson;
-import websocket.messages.ServerMessage;
 import websocket.commands.*;
 
 import java.io.IOException;
@@ -14,9 +13,9 @@ import java.util.*;
 public class ServerFacade {
 
     HttpCommunicator http;
-    String authToken;
     WebsocketCommunicator ws;
     String serverDomain;
+    String authToken;
 
     public ServerFacade() throws Exception {
         this("localhost:8080");
@@ -51,12 +50,12 @@ public class ServerFacade {
         return http.createGame(gameName);
     }
 
-    public boolean joinGame(int gameID, String color) {
-        return http.joinGame(gameID, color);
-    }
-
     public HashSet<GameData> listGames() {
         return http.listGames();
+    }
+
+    public boolean joinGame(int gameId, String playerColor) {
+        return http.joinGame(gameId, playerColor);
     }
 
     public void connectWS() {
@@ -73,17 +72,10 @@ public class ServerFacade {
         ws.sendMessage(message);
     }
 
-
-    /**
-     * Connect to a game as either a player or observer.
-     *
-     * @param gameID    The ID of the game to connect to.
-     * @param isObserver True if connecting as an observer, false if connecting as a player.
-     * @param color      The color of the player (white/black) if joining as a player; null if observer.
-     */
-    public void connect(int gameID, boolean isObserver, String color) {
+    public void connect(int gameID, boolean isObserver, ChessGame.TeamColor color) {
         sendCommand(new Connect(authToken, gameID, isObserver, color));
     }
+
 
     public void makeMove(int gameID, ChessMove move) {
         sendCommand(new MakeMove(authToken, gameID, move));
@@ -96,5 +88,5 @@ public class ServerFacade {
     public void resign(int gameID) {
         sendCommand(new Resign(authToken, gameID));
     }
-}
 
+}

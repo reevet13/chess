@@ -19,7 +19,9 @@ import websocket.messages.ServerMessage;
 import websocket.commands.*;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WebsocketHandler {
@@ -41,7 +43,12 @@ public class WebsocketHandler {
         if (message.contains("\"commandType\":\"CONNECT\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
             Server.gameSessions.replace(session, command.getGameID());
-            handleConnect(session, command);
+
+            if (command.isObserver()) {
+                handleJoinObserver(session, command);
+            } else {
+                handleJoinPlayer(session, command);
+            }
         }
         else if (message.contains("\"commandType\":\"MAKE_MOVE\"")) {
             MakeMove command = new Gson().fromJson(message, MakeMove.class);
@@ -57,46 +64,50 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleConnect(Session session, Connect command) throws IOException {
+    private void handleJoinPlayer(Session session, Connect command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
             GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
 
-            if (command.isObserver()) {
-                // Observer Logic
-                Notification notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
-                broadcastMessage(session, notif);
+            ChessGame.TeamColor joiningColor = command.getColor();
+
+            boolean correctColor;
+            if (joiningColor == ChessGame.TeamColor.WHITE) {
+                correctColor = Objects.equals(game.whiteUsername(), auth.username());
             } else {
-                // Player Logic
-                ChessGame.TeamColor joiningColor = command.getColor().equalsIgnoreCase("white")
-                        ? ChessGame.TeamColor.WHITE
-                        : ChessGame.TeamColor.BLACK;
-
-                boolean correctColor = (joiningColor == ChessGame.TeamColor.WHITE
-                        && Objects.equals(game.whiteUsername(), auth.username()))
-                        || (joiningColor == ChessGame.TeamColor.BLACK
-                        && Objects.equals(game.blackUsername(), auth.username()));
-
-                if (!correctColor) {
-                    sendError(session, new Error("Error: attempting to join with the wrong color"));
-                    return;
-                }
-
-                Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor()));
-                broadcastMessage(session, notif);
+                correctColor = Objects.equals(game.blackUsername(), auth.username());
             }
 
-            // Send the game state to the client
+            if (!correctColor) {
+                Error error = new Error("Error: attempting to join with wrong color");
+                sendError(session, error);
+                return;
+            }
+
+            Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
+            broadcastMessage(session, notif);
+
             LoadGame load = new LoadGame(game.game());
             sendMessage(session, load);
-
-        } catch (UnauthorizedException e) {
-            sendError(session, new Error("Error: Not authorized"));
-        } catch (BadRequestException e) {
-            sendError(session, new Error("Error: Not a valid game"));
+        } catch (UnauthorizedException | BadRequestException e) {
+            sendError(session, new Error("Error: Not authorized or not a valid game"));
         }
     }
 
+    private void handleJoinObserver(Session session, Connect command) throws IOException {
+        try {
+            AuthData auth = Server.service.getAuth(command.getAuthString());
+            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
+
+            Notification notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
+            broadcastMessage(session, notif);
+
+            LoadGame load = new LoadGame(game.game());
+            sendMessage(session, load);
+        } catch (UnauthorizedException | BadRequestException e) {
+            sendError(session, new Error("Error: Not authorized or not a valid game"));
+        }
+    }
 
     private void handleMakeMove(Session session, MakeMove command) throws IOException {
         try {
