@@ -52,7 +52,7 @@ public class Handler {
         }
         GameData gameData = new Gson().fromJson(req.body(), GameData.class);
         String authToken = req.headers("authorization");
-        int gameID = service.createGame(authToken, gameData.gameName());
+        int gameID = service.createGame(authToken, gameData.getGameName());
         res.status(200);
         return "{ \"gameID\": %d }".formatted(gameID);
     }

@@ -108,19 +108,25 @@ public class Service {
             throw new BadRequestException(e.getMessage());
         }
 
-        String whiteUser = gameData.whiteUsername();
-        String blackUser = gameData.blackUsername();
+        String whiteUser = gameData.getWhiteUsername();
+        String blackUser = gameData.getBlackUsername();
 
         if (Objects.equals(color, "WHITE")) {
-            if (whiteUser != null && !whiteUser.equals(authData.username())) return false; // Spot taken by someone else
-            else whiteUser = authData.username();
+            if (whiteUser != null && !whiteUser.equals(authData.username())){
+                return false; // Spot taken by someone else
+            } else {
+                whiteUser = authData.username();
+            }
         } else if (Objects.equals(color, "BLACK")) {
-            if (blackUser != null && !blackUser.equals(authData.username())) return false; // Spot taken by someone else
-            else blackUser = authData.username();
+            if (blackUser != null && !blackUser.equals(authData.username())){
+                return false; // Spot taken by someone else
+            } else {
+                blackUser = authData.username();
+            }
         } else if (color != null) throw new BadRequestException("%s is not a valid team color".formatted(color));
 
         try {
-            gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
+            gameDAO.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.getGameName(), gameData.getGame()));
         } catch (DataAccessException e) {
             throw new BadRequestException(e.getMessage());
         }

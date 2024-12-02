@@ -13,14 +13,13 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
 
 import static ui.EscapeSequences.ERASE_LINE;
 import static ui.EscapeSequences.moveCursorToLocation;
 
 public class WebsocketCommunicator extends Endpoint {
 
-    Session session;
+    private Session session;
 
     public WebsocketCommunicator(String serverDomain) throws Exception {
         try {
@@ -29,7 +28,7 @@ public class WebsocketCommunicator extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
 
-            //set message handler
+            // Set message handler after the connection is established
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
@@ -38,16 +37,20 @@ public class WebsocketCommunicator extends Endpoint {
             });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new Exception();
+            // Throw an exception with a detailed message for easier debugging
+            throw new Exception("Failed to connect to WebSocket server: " + ex.getMessage(), ex);
         }
-
     }
 
     @Override
     public void onOpen(Session session, EndpointConfig config) {
+        // Store the session object when connection is established
+        this.session = session;
+        System.out.println("WebSocket connection established: " + session.getId());
     }
 
     private void handleMessage(String message) {
+        // Handle incoming messages and parse them based on their type
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             Notification notif = new Gson().fromJson(message, Notification.class);
             printNotification(notif.getMessage());
@@ -75,6 +78,11 @@ public class WebsocketCommunicator extends Endpoint {
     }
 
     public void sendMessage(String message) {
-        this.session.getAsyncRemote().sendText(message);
+        // Ensure session is open before sending a message
+        if (this.session != null && this.session.isOpen()) {
+            this.session.getAsyncRemote().sendText(message);
+        } else {
+            System.out.println("WebSocket session is not open. Cannot send message.");
+        }
     }
 }

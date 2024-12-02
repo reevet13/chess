@@ -27,13 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebsocketHandler {
 
     @OnWebSocketConnect
-    public void onConnect(Session session) throws Exception {
-        Server.gameSessions.put(session, 0);
+    public void onConnect(Session session) {
+        System.out.println("WebSocket connection established: " + session.getRemoteAddress().getAddress());
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        Server.gameSessions.remove(session);
+        System.out.println("WebSocket connection closed: " + session.getRemoteAddress().getAddress() + " - Reason: " + reason);
     }
 
     @OnWebSocketMessage
@@ -63,7 +63,6 @@ public class WebsocketHandler {
             handleResign(session, command);
         }
     }
-
     private void handleJoinPlayer(Session session, Connect command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
@@ -73,9 +72,9 @@ public class WebsocketHandler {
 
             boolean correctColor;
             if (joiningColor == ChessGame.TeamColor.WHITE) {
-                correctColor = Objects.equals(game.whiteUsername(), auth.username());
+                correctColor = Objects.equals(game.getWhiteUsername(), auth.username());
             } else {
-                correctColor = Objects.equals(game.blackUsername(), auth.username());
+                correctColor = Objects.equals(game.getBlackUsername(), auth.username());
             }
 
             if (!correctColor) {
@@ -184,7 +183,7 @@ public class WebsocketHandler {
             GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
             ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
 
-            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
+            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.getBlackUsername() : game.getWhiteUsername();
 
             if (userColor == null) {
                 sendError(session, new Error("Error: You are observing this game"));
@@ -196,7 +195,7 @@ public class WebsocketHandler {
                 return;
             }
 
-            game.game().setGameOver(true);
+            game.getGame().setGameOver(true);
             Server.service.updateGame(auth.authToken(), game);
             Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), opponentUsername));
             broadcastMessage(session, notif, true);
@@ -235,10 +234,10 @@ public class WebsocketHandler {
     }
 
     private ChessGame.TeamColor getTeamColor(String username, GameData game) {
-        if (username.equals(game.whiteUsername())) {
+        if (username.equals(game.getWhiteUsername())) {
             return ChessGame.TeamColor.WHITE;
         }
-        else if (username.equals(game.blackUsername())) {
+        else if (username.equals(game.getBlackUsername())) {
             return ChessGame.TeamColor.BLACK;
         }
         else return null;

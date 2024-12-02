@@ -78,9 +78,9 @@ public class PostloginREPL {
     private void printGames() {
         for (int i = 0; i < games.size(); i++) {
             GameData game = games.get(i);
-            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
-            String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-            out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i, game.gameName(), whiteUser, blackUser);
+            String whiteUser = game.getWhiteUsername() != null ? game.getWhiteUsername() : "open";
+            String blackUser = game.getBlackUsername() != null ? game.getBlackUsername() : "open";
+            out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i, game.getGameName(), whiteUser, blackUser);
         }
     }
 
@@ -118,9 +118,9 @@ public class PostloginREPL {
 
 
             server.connectWS();
-            server.connect(joinGame.gameID(), false, color); // Connect as a player
+            server.connect(joinGame.getGameID(), false, color); // Connect as a player
 
-            out.printf("You have joined game '%s' as %s%n", joinGame.gameName(), color);
+            out.printf("You have joined game '%s' as %s%n", joinGame.getGameName(), color);
             inGame = true;
 
             GameplayREPL gameplayREPL = new GameplayREPL(server, joinGame, color);
@@ -140,9 +140,9 @@ public class PostloginREPL {
             GameData observeGame = games.get(gameNum);
 
             server.connectWS();
-            server.connect(observeGame.gameID(), true, null); // Connect as an observer
+            server.connect(observeGame.getGameID(), true, null); // Connect as an observer
 
-            out.printf("You are now observing game '%s'%n", observeGame.gameName());
+            out.printf("You are now observing game '%s'%n", observeGame.getGameName());
             inGame = true;
 
             GameplayREPL gameplayREPL = new GameplayREPL(server, observeGame, null);

@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
-
     UserDAO userDAO;
     AuthDAO authDAO;
     GameDAO gameDAO;
@@ -22,25 +21,27 @@ public class Server {
     static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
-
         userDAO = new SQLUserDAO();
         authDAO = new SQLAuthDAO();
         gameDAO = new SQLGameDAO();
 
         service = new Service(userDAO, authDAO, gameDAO);
 
-        handler = new Handler(service);
-
-        try { DatabaseManager.createDatabase(); } catch (DataAccessException ex) {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException ex) {
             throw new RuntimeException(ex);
         }
+
+        handler = new Handler(service);
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web");
+        Spark.staticFiles.location("/web");
 
+        // Ensure the WebSocket endpoint is correctly mapped
         Spark.webSocket("/connect", WebsocketHandler.class);
 
         Spark.delete("/db", this::clear);
@@ -56,7 +57,6 @@ public class Server {
         Spark.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);
         Spark.exception(Exception.class, this::genericExceptionHandler);
 
-
         Spark.awaitInitialization();
         return Spark.port();
     }
@@ -67,13 +67,11 @@ public class Server {
     }
 
     public void clearDB() {
-        service.clear();;
+        service.clear();
     }
 
     private Object clear(Request req, Response resp) {
-
         clearDB();
-
         resp.status(200);
         return "{}";
     }
@@ -92,5 +90,4 @@ public class Server {
         resp.status(500);
         resp.body("{ \"message\": \"Error: %s\" }".formatted(ex.getMessage()));
     }
-
 }

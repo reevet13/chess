@@ -59,11 +59,11 @@ public class SQLGameDAO implements GameDAO{
         try (var con = DatabaseManager.getConnection()) {
             try (var statement = con.prepareStatement("INSERT INTO game " +
                     "(gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES(?, ?, ?, ?, ?)")) {
-                statement.setInt(1, game.gameID());
-                statement.setString(2, game.whiteUsername());
-                statement.setString(3, game.blackUsername());
-                statement.setString(4, game.gameName());
-                statement.setString(5, serializeGame(game.game()));
+                statement.setInt(1, game.getGameID());
+                statement.setString(2, game.getWhiteUsername());
+                statement.setString(3, game.getBlackUsername());
+                statement.setString(4, game.getGameName());
+                statement.setString(5, serializeGame(game.getGame()));
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -110,11 +110,11 @@ public class SQLGameDAO implements GameDAO{
         try (var con = DatabaseManager.getConnection()) {
             try (var statement = con.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, " +
                     "gameName=?, chessGame=? WHERE gameID=?")) {
-                statement.setString(1, game.whiteUsername());
-                statement.setString(2, game.blackUsername());
-                statement.setString(3, game.gameName());
-                statement.setString(4, serializeGame(game.game()));
-                statement.setInt(5, game.gameID());
+                statement.setString(1, game.getWhiteUsername());
+                statement.setString(2, game.getBlackUsername());
+                statement.setString(3, game.getGameName());
+                statement.setString(4, serializeGame(game.getGame()));
+                statement.setInt(5, game.getGameID());
                 int rowsUpdated = statement.executeUpdate();
                 if (rowsUpdated == 0) {throw new DataAccessException("Requested game to update not fount");}
             }
