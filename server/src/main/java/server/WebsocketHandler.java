@@ -33,7 +33,8 @@ public class WebsocketHandler {
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        System.out.println("WebSocket connection closed: " + session.getRemoteAddress().getAddress() + " - Reason: " + reason);
+        System.out.println("WebSocket connection closed: " + session.getRemoteAddress().getAddress() +
+                " - Reason: " + reason);
     }
 
     @OnWebSocketMessage
@@ -66,7 +67,8 @@ public class WebsocketHandler {
     private void handleJoinPlayer(Session session, Connect command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
-            boolean joined = Server.service.joinGame(command.getAuthString(), command.getGameID(), command.getColor().toString());
+            boolean joined = Server.service.joinGame(command.getAuthString(), command.getGameID(),
+                    command.getColor().toString());
 
             if (!joined) {
                 Error error = new Error("Error: Spot taken by someone else");
@@ -90,7 +92,8 @@ public class WebsocketHandler {
                 return;
             }
 
-            Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
+            Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(),
+                    command.getColor().toString()));
             broadcastMessage(session, notif);
 
 
@@ -135,7 +138,8 @@ public class WebsocketHandler {
                 game.getGame().makeMove(command.getMove());
 
                 Notification notif;
-                ChessGame.TeamColor opponentColor = userColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+                ChessGame.TeamColor opponentColor = userColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK :
+                        ChessGame.TeamColor.WHITE;
 
                 if (game.getGame().isInCheckmate(opponentColor)) {
                     notif = new Notification("Checkmate! %s wins!".formatted(auth.username()));
@@ -144,7 +148,8 @@ public class WebsocketHandler {
                     notif = new Notification("Stalemate caused by %s's move! It's a tie!".formatted(auth.username()));
                     game.getGame().setGameOver(true);
                 } else if (game.getGame().isInCheck(opponentColor)) {
-                    notif = new Notification("A move has been made by %s, %s is now in check!".formatted(auth.username(), opponentColor.toString()));
+                    notif = new Notification("A move has been made by %s, %s is now in check!".formatted(auth.username()
+                            , opponentColor.toString()));
                 } else {
                     notif = new Notification("A move has been made by %s".formatted(auth.username()));
                 }
@@ -163,7 +168,8 @@ public class WebsocketHandler {
             sendError(session, new Error("Error: invalid game"));
         } catch (InvalidMoveException e) {
             System.out.println("****** error: " + e.getMessage() + "  " + command.getMove().toString());
-            sendError(session, new Error("Error: invalid move (you might need to specify a promotion piece)"));
+            sendError(session, new Error("Error: invalid move " +
+                    "(you might need to specify a promotion piece)"));
         }
     }
 
@@ -186,7 +192,8 @@ public class WebsocketHandler {
             GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
             ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
 
-            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.getBlackUsername() : game.getWhiteUsername();
+            String opponentUsername = userColor == ChessGame.TeamColor.WHITE ? game.getBlackUsername() :
+                    game.getWhiteUsername();
 
             if (userColor == null) {
                 sendError(session, new Error("Error: You are observing this game"));
@@ -200,7 +207,8 @@ public class WebsocketHandler {
 
             game.getGame().setGameOver(true);
             Server.service.updateGame(auth.authToken(), game);
-            Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), opponentUsername));
+            Notification notif = new Notification("%s has forfeited, %s wins!".formatted(auth.username(),
+                    opponentUsername));
             broadcastMessage(session, notif, true);
         } catch (UnauthorizedException e) {
             sendError(session, new Error("Error: Not authorized"));

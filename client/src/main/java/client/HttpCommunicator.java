@@ -124,7 +124,8 @@ public class HttpCommunicator {
         return respMap;
     }
 
-    private HttpURLConnection makeConnection(String method, String endpoint, String body) throws URISyntaxException, IOException {
+    private HttpURLConnection makeConnection(String method, String endpoint, String body)
+            throws URISyntaxException, IOException {
         URI uri = new URI(baseURL + endpoint);
         HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
         http.setRequestMethod(method);

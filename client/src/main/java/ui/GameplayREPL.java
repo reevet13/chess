@@ -67,7 +67,8 @@ public class GameplayREPL {
                     break;
                 case "highlight":
                     if (input.length == 2 && input[1].matches("[a-h][1-8]")) {
-                        ChessPosition position = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'-1));
+                        ChessPosition position = new ChessPosition(input[1].charAt(1) - '0',
+                                input[1].charAt(0) - ('a'-1));
                         boardPrinter.printBoard(color, position);
                     }
                     else {
@@ -103,7 +104,8 @@ public class GameplayREPL {
     }
 
     private void printMakeMove() {
-        out.println("move <from> <to> <promotion_piece> - make a move (Promotion piece should only be used when a move will promote a pawn)");
+        out.println("move <from> <to> <promotion_piece> - make a move " +
+                "(Promotion piece should only be used when a move will promote a pawn)");
     }
 
     private void printHighlight() {

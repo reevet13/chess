@@ -80,7 +80,8 @@ public class PostloginREPL {
             GameData game = games.get(i);
             String whiteUser = game.getWhiteUsername() != null ? game.getWhiteUsername() : "open";
             String blackUser = game.getBlackUsername() != null ? game.getBlackUsername() : "open";
-            out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i, game.getGameName(), whiteUser, blackUser);
+            out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i,
+                    game.getGameName(), whiteUser, blackUser);
         }
     }
 
@@ -105,7 +106,8 @@ public class PostloginREPL {
     }
 
     private void handleJoin(String[] input) {
-        if (input.length != 3 || !input[1].matches("\\d+") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
+        if (input.length != 3 || !input[1].matches("\\d+") ||
+                !input[2].toUpperCase().matches("WHITE|BLACK")) {
             out.println("Please provide a valid game ID and color choice");
             printJoin();
             return;

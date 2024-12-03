@@ -93,7 +93,8 @@ public class Service {
         return gameID;
     }
 
-    public boolean joinGame(String authToken, int gameID, String color) throws UnauthorizedException, BadRequestException {
+    public boolean joinGame(String authToken, int gameID, String color) throws UnauthorizedException,
+            BadRequestException {
         AuthData authData;
         GameData gameData;
         try {
@@ -108,7 +109,8 @@ public class Service {
             throw new BadRequestException(e.getMessage());
         }
 
-        if (color == null || (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK"))) {
+        if (color == null || (!color.equalsIgnoreCase("WHITE") &&
+                !color.equalsIgnoreCase("BLACK"))) {
             throw new BadRequestException("%s is not a valid team color".formatted(color));
         }
 
