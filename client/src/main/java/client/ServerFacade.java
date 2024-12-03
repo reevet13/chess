@@ -5,6 +5,7 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import model.GameData;
 
+import ui.GameplayREPL;
 import websocket.commands.*;
 
 import java.io.IOException;
@@ -58,9 +59,9 @@ public class ServerFacade {
         return http.joinGame(gameId, playerColor);
     }
 
-    public void connectWS() {
+    public void connectWS(GameplayREPL gameplayREPL) {
         try {
-            ws = new WebsocketCommunicator(serverDomain);
+            ws = new WebsocketCommunicator(serverDomain, gameplayREPL);
         }
         catch (Exception e) {
             System.out.println("Failed to make connection with server");

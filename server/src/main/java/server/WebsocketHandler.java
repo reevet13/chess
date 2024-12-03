@@ -42,7 +42,7 @@ public class WebsocketHandler {
 
         if (message.contains("\"commandType\":\"CONNECT\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
-            Server.gameSessions.replace(session, command.getGameID());
+            Server.gameSessions.put(session, command.getGameID());
 
             if (command.isObserver()) {
                 handleJoinObserver(session, command);
@@ -66,8 +66,15 @@ public class WebsocketHandler {
     private void handleJoinPlayer(Session session, Connect command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
-            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
+            boolean joined = Server.service.joinGame(command.getAuthString(), command.getGameID(), command.getColor().toString());
 
+            if (!joined) {
+                Error error = new Error("Error: Spot taken by someone else");
+                sendError(session, error);
+                return;
+            }
+
+            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
             ChessGame.TeamColor joiningColor = command.getColor();
 
             boolean correctColor;
@@ -86,7 +93,8 @@ public class WebsocketHandler {
             Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
             broadcastMessage(session, notif);
 
-            LoadGame load = new LoadGame(game.game());
+
+            LoadGame load = new LoadGame(game.getGame());
             sendMessage(session, load);
         } catch (UnauthorizedException | BadRequestException e) {
             sendError(session, new Error("Error: Not authorized or not a valid game"));
@@ -101,7 +109,7 @@ public class WebsocketHandler {
             Notification notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
             broadcastMessage(session, notif);
 
-            LoadGame load = new LoadGame(game.game());
+            LoadGame load = new LoadGame(game.getGame());
             sendMessage(session, load);
         } catch (UnauthorizedException | BadRequestException e) {
             sendError(session, new Error("Error: Not authorized or not a valid game"));
@@ -118,26 +126,26 @@ public class WebsocketHandler {
                 return;
             }
 
-            if (game.game().getGameOver()) {
+            if (game.getGame().getGameOver()) {
                 sendError(session, new Error("Error: can not make a move, game is over"));
                 return;
             }
 
-            if (game.game().getTeamTurn().equals(userColor)) {
-                game.game().makeMove(command.getMove());
+            if (game.getGame().getTeamTurn().equals(userColor)) {
+                game.getGame().makeMove(command.getMove());
 
                 Notification notif;
                 ChessGame.TeamColor opponentColor = userColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
-                if (game.game().isInCheckmate(opponentColor)) {
+                if (game.getGame().isInCheckmate(opponentColor)) {
                     notif = new Notification("Checkmate! %s wins!".formatted(auth.username()));
-                    game.game().setGameOver(true);
+                    game.getGame().setGameOver(true);
                 }
-                else if (game.game().isInStalemate(opponentColor)) {
+                else if (game.getGame().isInStalemate(opponentColor)) {
                     notif = new Notification("Stalemate caused by %s's move! It's a tie!".formatted(auth.username()));
-                    game.game().setGameOver(true);
+                    game.getGame().setGameOver(true);
                 }
-                else if (game.game().isInCheck(opponentColor)) {
+                else if (game.getGame().isInCheck(opponentColor)) {
                     notif = new Notification("A move has been made by %s, %s is now in check!".formatted(auth.username(), opponentColor.toString()));
                 }
                 else {
@@ -147,7 +155,7 @@ public class WebsocketHandler {
 
                 Server.service.updateGame(auth.authToken(), game);
 
-                LoadGame load = new LoadGame(game.game());
+                LoadGame load = new LoadGame(game.getGame());
                 broadcastMessage(session, load, true);
             }
             else {
@@ -190,7 +198,7 @@ public class WebsocketHandler {
                 return;
             }
 
-            if (game.game().getGameOver()) {
+            if (game.getGame().getGameOver()) {
                 sendError(session, new Error("Error: The game is already over!"));
                 return;
             }

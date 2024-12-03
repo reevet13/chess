@@ -20,8 +20,10 @@ import static ui.EscapeSequences.moveCursorToLocation;
 public class WebsocketCommunicator extends Endpoint {
 
     private Session session;
+    private GameplayREPL gameplayREPL;
 
-    public WebsocketCommunicator(String serverDomain) throws Exception {
+    public WebsocketCommunicator(String serverDomain, GameplayREPL gameplayREPL) throws Exception {
+        this.gameplayREPL = gameplayREPL;
         try {
             URI uri = new URI("ws://" + serverDomain + "/connect");
 
@@ -53,29 +55,18 @@ public class WebsocketCommunicator extends Endpoint {
         // Handle incoming messages and parse them based on their type
         if (message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             Notification notif = new Gson().fromJson(message, Notification.class);
-            printNotification(notif.getMessage());
+            gameplayREPL.printNotification(notif.getMessage());
         }
         else if (message.contains("\"serverMessageType\":\"ERROR\"")) {
             Error error = new Gson().fromJson(message, Error.class);
-            printNotification(error.getMessage());
+            gameplayREPL.printNotification(error.getMessage());
         }
         else if (message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
-            printLoadedGame(loadGame.getGame());
+            gameplayREPL.printLoadedGame(loadGame.getGame());
         }
     }
 
-    private void printNotification(String message) {
-        System.out.print(ERASE_LINE + '\r');
-        System.out.printf("\n%s\n[IN-GAME] >>> ", message);
-    }
-
-    private void printLoadedGame(ChessGame game) {
-        System.out.print(ERASE_LINE + "\r\n");
-        GameplayREPL.boardPrinter.updateGame(game);
-        GameplayREPL.boardPrinter.printBoard(GameplayREPL.color, null);
-        System.out.print("[IN-GAME] >>> ");
-    }
 
     public void sendMessage(String message) {
         // Ensure session is open before sending a message

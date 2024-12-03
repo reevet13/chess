@@ -18,7 +18,7 @@ public class Server {
     Handler handler;
 
     // {Session: gameID}
-    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
 
     public Server() {
         userDAO = new SQLUserDAO();

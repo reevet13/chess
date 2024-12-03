@@ -29,8 +29,8 @@ public class GameplayREPL {
 
     public GameplayREPL(ServerFacade server, GameData gameData, ChessGame.TeamColor color) {
         this.server = server;
-        this.game = gameData.game();
-        this.gameID = gameData.gameID();
+        this.game = gameData.getGame();
+        this.gameID = gameData.getGameID();
         GameplayREPL.color = color;
 
         boardPrinter = new Printer(game);
@@ -145,6 +145,18 @@ public class GameplayREPL {
             case "PAWN" -> ChessPiece.PieceType.PAWN;
             default -> null;
         };
+    }
+
+    public void printNotification(String message) {
+        out.print(ERASE_LINE + '\r');
+        out.printf("\n%s\n[IN-GAME] >>> ", message);
+    }
+
+    public void printLoadedGame(ChessGame game) {
+        out.print(ERASE_LINE + "\r\n");
+        boardPrinter.updateGame(game);
+        boardPrinter.printBoard(color, null);
+        out.print("[IN-GAME] >>> ");
     }
 
 }

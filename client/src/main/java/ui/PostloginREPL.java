@@ -116,14 +116,20 @@ public class PostloginREPL {
             GameData joinGame = games.get(gameNum);
             ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(input[2].toUpperCase());
 
+            // Check if the color is already taken
+            if ((color == ChessGame.TeamColor.WHITE && joinGame.getWhiteUsername() != null) ||
+                    (color == ChessGame.TeamColor.BLACK && joinGame.getBlackUsername() != null)) {
+                out.printf("The color %s is already taken. Please choose a different color.%n", color);
+                return;
+            }
 
-            server.connectWS();
+            GameplayREPL gameplayREPL = new GameplayREPL(server, joinGame, color);
+            server.connectWS(gameplayREPL);
             server.connect(joinGame.getGameID(), false, color); // Connect as a player
 
             out.printf("You have joined game '%s' as %s%n", joinGame.getGameName(), color);
             inGame = true;
 
-            GameplayREPL gameplayREPL = new GameplayREPL(server, joinGame, color);
             gameplayREPL.run();
         }
     }
@@ -139,13 +145,13 @@ public class PostloginREPL {
         if (validateGameID(gameNum)) {
             GameData observeGame = games.get(gameNum);
 
-            server.connectWS();
+            GameplayREPL gameplayREPL = new GameplayREPL(server, observeGame, null);
+            server.connectWS(gameplayREPL);
             server.connect(observeGame.getGameID(), true, null); // Connect as an observer
 
             out.printf("You are now observing game '%s'%n", observeGame.getGameName());
             inGame = true;
 
-            GameplayREPL gameplayREPL = new GameplayREPL(server, observeGame, null);
             gameplayREPL.run();
         }
     }

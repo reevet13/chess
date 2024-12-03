@@ -51,7 +51,7 @@ public class SQLGameDAOTest {
         try (var con = DatabaseManager.getConnection()) {
             try (var statement = con.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, " +
                     "chessGame FROM game WHERE gameID=?")) {
-                statement.setInt(1, testData.gameID());
+                statement.setInt(1, testData.getGameID());
                 try (var results = statement.executeQuery()) {
                     results.next();
                     var gameID = results.getInt(("gameID"));
@@ -59,7 +59,7 @@ public class SQLGameDAOTest {
                     var blackUsername = results.getString("blackUsername");
                     var gameName = results.getString("gameName");
                     var chessGame = deserializeGame(results.getString("chessGame"));
-                    assertEquals(testData.game(), chessGame, "Game board is not equal");
+                    assertEquals(testData.getGame(), chessGame, "Game board is not equal");
                     resultData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
                 }
             }
@@ -102,32 +102,32 @@ public class SQLGameDAOTest {
     @Test
     void getGamePositive() throws DataAccessException {
         gameDAO.createGame(testData);
-        assertEquals(testData, gameDAO.getGame(testData.gameID()));
+        assertEquals(testData, gameDAO.getGame(testData.getGameID()));
     }
 
     @Test
     void getGameNegative() {
-        assertThrows(DataAccessException.class, () -> gameDAO.getGame(testData.gameID()));
+        assertThrows(DataAccessException.class, () -> gameDAO.getGame(testData.getGameID()));
     }
 
     @Test
     void gameExistsPositive() throws DataAccessException {
         gameDAO.createGame(testData);
-        assertTrue(gameDAO.gameExists(testData.gameID()));
+        assertTrue(gameDAO.gameExists(testData.getGameID()));
     }
 
     @Test
     void gameExistsNegative() {
-        assertFalse(gameDAO.gameExists(testData.gameID()));
+        assertFalse(gameDAO.gameExists(testData.getGameID()));
     }
 
     @Test
     void updateGamePositive() throws DataAccessException {
         gameDAO.createGame(testData);
-        GameData resultingGame = new GameData(testData.gameID(), "whiter", "black",
-                "gameName", testData.game());
+        GameData resultingGame = new GameData(testData.getGameID(), "whiter", "black",
+                "gameName", testData.getGame());
                 gameDAO.updateGame(resultingGame);
-                assertEquals(resultingGame, gameDAO.getGame(testData.gameID()));
+                assertEquals(resultingGame, gameDAO.getGame(testData.getGameID()));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class SQLGameDAOTest {
 
         try (var con = DatabaseManager.getConnection()) {
             try (var statement = con.prepareStatement("SELECT gameID FROM game WHERE gameID=?")) {
-                statement.setInt(1, testData.gameID());
+                statement.setInt(1, testData.getGameID());
                 try (var results = statement.executeQuery()) {
                     assertFalse(results.next());
                 }
