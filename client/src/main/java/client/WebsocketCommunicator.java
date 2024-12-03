@@ -25,7 +25,7 @@ public class WebsocketCommunicator extends Endpoint {
     public WebsocketCommunicator(String serverDomain, GameplayREPL gameplayREPL) throws Exception {
         this.gameplayREPL = gameplayREPL;
         try {
-            URI uri = new URI("ws://" + serverDomain + "/connect");
+            URI uri = new URI("ws://" + serverDomain + "/ws");
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);

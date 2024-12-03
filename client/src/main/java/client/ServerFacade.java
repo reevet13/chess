@@ -27,7 +27,7 @@ public class ServerFacade {
         http = new HttpCommunicator(this, serverDomain);
     }
 
-    protected String getAuthToken() {
+    public String getAuthToken() {
         return authToken;
     }
 
@@ -73,8 +73,8 @@ public class ServerFacade {
         ws.sendMessage(message);
     }
 
-    public void connect(int gameID, boolean isObserver, ChessGame.TeamColor color) {
-        sendCommand(new Connect(authToken, gameID, isObserver, color));
+    public void connect(int gameID) {
+        sendCommand(new Connect(authToken, gameID));
     }
 
 

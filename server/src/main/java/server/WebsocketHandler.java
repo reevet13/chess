@@ -44,12 +44,7 @@ public class WebsocketHandler {
         if (message.contains("\"commandType\":\"CONNECT\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
             Server.gameSessions.put(session, command.getGameID());
-
-            if (command.isObserver()) {
-                handleJoinObserver(session, command);
-            } else {
-                handleJoinPlayer(session, command);
-            }
+            handleConnect(session, command);
         }
         else if (message.contains("\"commandType\":\"MAKE_MOVE\"")) {
             MakeMove command = new Gson().fromJson(message, MakeMove.class);
@@ -64,52 +59,12 @@ public class WebsocketHandler {
             handleResign(session, command);
         }
     }
-    private void handleJoinPlayer(Session session, Connect command) throws IOException {
-        try {
-            AuthData auth = Server.service.getAuth(command.getAuthString());
-            boolean joined = Server.service.joinGame(command.getAuthString(), command.getGameID(),
-                    command.getColor().toString());
-
-            if (!joined) {
-                Error error = new Error("Error: Spot taken by someone else");
-                sendError(session, error);
-                return;
-            }
-
-            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
-            ChessGame.TeamColor joiningColor = command.getColor();
-
-            boolean correctColor;
-            if (joiningColor == ChessGame.TeamColor.WHITE) {
-                correctColor = Objects.equals(game.getWhiteUsername(), auth.username());
-            } else {
-                correctColor = Objects.equals(game.getBlackUsername(), auth.username());
-            }
-
-            if (!correctColor) {
-                Error error = new Error("Error: attempting to join with wrong color");
-                sendError(session, error);
-                return;
-            }
-
-            Notification notif = new Notification("%s has joined the game as %s".formatted(auth.username(),
-                    command.getColor().toString()));
-            broadcastMessage(session, notif);
-
-
-            LoadGame load = new LoadGame(game.getGame());
-            sendMessage(session, load);
-        } catch (UnauthorizedException | BadRequestException e) {
-            sendError(session, new Error("Error: Not authorized or not a valid game"));
-        }
-    }
-
-    private void handleJoinObserver(Session session, Connect command) throws IOException {
+    private void handleConnect(Session session, Connect command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
             GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
 
-            Notification notif = new Notification("%s has joined the game as an observer".formatted(auth.username()));
+            Notification notif = new Notification("%s has connected to the game".formatted(auth.username()));
             broadcastMessage(session, notif);
 
             LoadGame load = new LoadGame(game.getGame());
@@ -176,6 +131,15 @@ public class WebsocketHandler {
     private void handleLeave(Session session, Leave command) throws IOException {
         try {
             AuthData auth = Server.service.getAuth(command.getAuthString());
+            GameData game = Server.service.getGameData(command.getAuthString(), command.getGameID());
+
+            if (auth.username().equals(game.getWhiteUsername())) {
+                game.setWhiteUsername(null);
+            } else if (auth.username().equals(game.getBlackUsername())) {
+                game.setBlackUsername(null);
+            }
+
+            Server.service.updateGame(auth.authToken(), game);
 
             Notification notif = new Notification("%s has left the game".formatted(auth.username()));
             broadcastMessage(session, notif);
@@ -183,6 +147,8 @@ public class WebsocketHandler {
             session.close();
         } catch (UnauthorizedException e) {
             sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
         }
     }
 
@@ -223,13 +189,13 @@ public class WebsocketHandler {
     }
 
     // Send the notification to all clients on the current game
-    public void broadcastMessage(Session currSession, ServerMessage message, boolean toSelf) throws IOException {
+    private void broadcastMessage(Session currSession, ServerMessage message, boolean toSelf) throws IOException {
         System.out.printf("Broadcasting (toSelf: %s): %s%n", toSelf, new Gson().toJson(message));
         for (Session session : Server.gameSessions.keySet()) {
             boolean inAGame = Server.gameSessions.get(session) != 0;
             boolean sameGame = Server.gameSessions.get(session).equals(Server.gameSessions.get(currSession));
             boolean isSelf = session == currSession;
-            if ((toSelf || !isSelf) && inAGame && sameGame) {
+            if ((toSelf || !isSelf) && inAGame && sameGame && session.isOpen()) {
                 sendMessage(session, message);
             }
         }

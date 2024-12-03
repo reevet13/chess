@@ -42,7 +42,7 @@ public class Server {
         Spark.staticFiles.location("/web");
 
         // Ensure the WebSocket endpoint is correctly mapped
-        Spark.webSocket("/connect", WebsocketHandler.class);
+        Spark.webSocket("/ws", WebsocketHandler.class);
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", handler::register);
