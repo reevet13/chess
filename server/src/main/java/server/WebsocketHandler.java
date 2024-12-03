@@ -251,7 +251,9 @@ public class WebsocketHandler {
         else if (username.equals(game.getBlackUsername())) {
             return ChessGame.TeamColor.BLACK;
         }
-        else return null;
+        else {
+            return null;
+        }
     }
 
 }
