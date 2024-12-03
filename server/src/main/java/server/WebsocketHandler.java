@@ -140,15 +140,12 @@ public class WebsocketHandler {
                 if (game.getGame().isInCheckmate(opponentColor)) {
                     notif = new Notification("Checkmate! %s wins!".formatted(auth.username()));
                     game.getGame().setGameOver(true);
-                }
-                else if (game.getGame().isInStalemate(opponentColor)) {
+                } else if (game.getGame().isInStalemate(opponentColor)) {
                     notif = new Notification("Stalemate caused by %s's move! It's a tie!".formatted(auth.username()));
                     game.getGame().setGameOver(true);
-                }
-                else if (game.getGame().isInCheck(opponentColor)) {
+                } else if (game.getGame().isInCheck(opponentColor)) {
                     notif = new Notification("A move has been made by %s, %s is now in check!".formatted(auth.username(), opponentColor.toString()));
-                }
-                else {
+                } else {
                     notif = new Notification("A move has been made by %s".formatted(auth.username()));
                 }
                 broadcastMessage(session, notif);
@@ -157,12 +154,10 @@ public class WebsocketHandler {
 
                 LoadGame load = new LoadGame(game.getGame());
                 broadcastMessage(session, load, true);
-            }
-            else {
+            } else {
                 sendError(session, new Error("Error: it is not your turn"));
             }
-        }
-        catch (UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             sendError(session, new Error("Error: Not authorized"));
         } catch (BadRequestException e) {
             sendError(session, new Error("Error: invalid game"));
